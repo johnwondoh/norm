@@ -141,7 +141,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "flex flex-col h-screen bg-slate-900 text-white transition-all duration-300",
+        "flex flex-col min-h-screen sticky top-0 bg-slate-900 text-white transition-all duration-300",
         isCollapsed ? "w-20" : "w-72"
       )}
     >
