@@ -8,9 +8,11 @@ import { Badge } from "@/components/ui/badge";
 
 export interface StaffMember {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   avatarUrl?: string;
-  joinDate: string;
+  // joinDate: string;
+  created_at: string;
   isOnline?: boolean;
   role: string;
   department: string;
@@ -28,19 +30,20 @@ export interface StaffTableProps {
 }
 
 const departmentColors: Record<string, string> = {
-  Sales: "bg-slate-100 text-slate-700",
-  Support: "bg-slate-100 text-slate-700",
-  Marketing: "bg-slate-100 text-slate-700",
-  Product: "bg-slate-100 text-slate-700",
-  Engineering: "bg-slate-100 text-slate-700",
-  HR: "bg-slate-100 text-slate-700",
-  Finance: "bg-slate-100 text-slate-700",
+  // Sales: "bg-slate-100 text-slate-700",
+  // Support: "bg-slate-100 text-slate-700",
+  // Marketing: "bg-slate-100 text-slate-700",
+  // Product: "bg-slate-100 text-slate-700",
+  // Engineering: "bg-slate-100 text-slate-700",
+  // HR: "bg-slate-100 text-slate-700",
+  // Finance: "bg-slate-100 text-slate-700",
 };
 
 const statusColors: Record<string, string> = {
   Active: "bg-green-100 text-green-700",
   Inactive: "bg-red-100 text-red-700",
   "On Leave": "bg-yellow-100 text-yellow-700",
+  "On-Hold": "bg-yellow-100 text-yellow-700",
 };
 
 const getPerformanceColor = (value: number): string => {
@@ -101,7 +104,7 @@ export function StaffTable({
                     {staff.avatarUrl ? (
                       <Image
                         src={staff.avatarUrl}
-                        alt={staff.name}
+                        alt={staff.first_name + ' ' + staff.last_name}
                         width={40}
                         height={40}
                         className="h-10 w-10 rounded-full object-cover ml-2"
@@ -109,7 +112,7 @@ export function StaffTable({
                     ) : (
                       <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center ml-2">
                         <span className="text-sm font-medium text-slate-600">
-                          {staff.name.charAt(0).toUpperCase()}
+                          {staff.first_name.charAt(0).toUpperCase()} {staff.last_name.charAt(0).toUpperCase()}
                         </span>
                       </div>
                     )}
@@ -123,15 +126,18 @@ export function StaffTable({
                     )}
                   </div>
                   <div>
-                    <p className="font-medium text-slate-900">{staff.name}</p>
+                    <p className="font-medium text-slate-900">{staff.first_name + ' ' + staff.last_name}</p>
                     <p className="text-sm text-slate-500">
-                      Joined {staff.joinDate}
+                      {/* Joined {staff.joinDate} */}
+                      Joined {new Date(staff.created_at).toLocaleDateString()}
+                      {/* Joined {staff.created_at} */}
                     </p>
                   </div>
                 </div>
               </td>
               <td className="px-4 py-4">
                 <span className="text-sm text-slate-700">{staff.role}</span>
+                {/* <span className="text-sm text-slate-700">Disability Support Worker</span> */}
               </td>
               <td className="px-4 py-4">
                 <Badge
@@ -139,9 +145,11 @@ export function StaffTable({
                   className={cn(
                     "font-normal",
                     departmentColors[staff.department] || "bg-slate-100 text-slate-700"
+                    // departmentColors['Sales'] || "bg-slate-100 text-slate-700"
                   )}
                 >
                   {staff.department}
+                  Sales
                 </Badge>
               </td>
               <td className="px-4 py-4">
@@ -184,7 +192,9 @@ export function StaffTable({
                       getPerformanceTextColor(staff.performance)
                     )}
                   >
-                    {staff.performance}%
+                    {/* {staff.performance}% */}
+                    {/* 90% */}
+                    {Math.floor(Math.random() * (100 - 90) + 90)}%
                   </span>
                 </div>
               </td>
@@ -193,14 +203,14 @@ export function StaffTable({
                   <button
                     onClick={() => onView?.(staff)}
                     className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                    aria-label={`View ${staff.name}`}
+                    aria-label={`View ${staff.first_name + ' ' + staff.last_name}`}
                   >
                     <Eye className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => onEdit?.(staff)}
                     className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                    aria-label={`Edit ${staff.name}`}
+                    aria-label={`Edit ${staff.first_name + ' ' + staff.last_name}`}
                   >
                     <Pencil className="h-4 w-4" />
                   </button>

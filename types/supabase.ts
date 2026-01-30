@@ -44,12 +44,14 @@ export type Database = {
           address: string | null
           country: string | null
           created_at: string
+          department: string | null
           email: string | null
           first_name: string | null
           id: number
           last_name: string | null
           phone: string | null
           post_code: string | null
+          role: string | null
           state: string | null
           status: string | null
         }
@@ -57,12 +59,14 @@ export type Database = {
           address?: string | null
           country?: string | null
           created_at?: string
+          department?: string | null
           email?: string | null
           first_name?: string | null
           id?: number
           last_name?: string | null
           phone?: string | null
           post_code?: string | null
+          role?: string | null
           state?: string | null
           status?: string | null
         }
@@ -70,12 +74,14 @@ export type Database = {
           address?: string | null
           country?: string | null
           created_at?: string
+          department?: string | null
           email?: string | null
           first_name?: string | null
           id?: number
           last_name?: string | null
           phone?: string | null
           post_code?: string | null
+          role?: string | null
           state?: string | null
           status?: string | null
         }

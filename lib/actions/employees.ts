@@ -17,4 +17,14 @@ export async function getEmployees() {
   return await supabase.from('employees').select();
 }
 
+// export async function updateEmployee(id: string, data: any) {
+//   const supabase = await createClient();
+//   return await supabase.from('employees').update(data).eq('id', id);
+// }
+
+// export async function deleteEmployee(id: string) {
+//   const supabase = await createClient();
+//   return await supabase.from('employees').delete().eq('id', id);
+// }
+
   // ----------------------------------------------------
