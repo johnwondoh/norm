@@ -41,6 +41,7 @@ import {
   StatusCard,
   StatusCardList,
   EditableDataField,
+  SectionEditableField,
 } from "@/components/dynamicSectionContent";
 
 interface EmployeeDetailPageProps {
@@ -77,6 +78,9 @@ export function EmployeeDetailClient({
   const router = useRouter();
   const [activeSection, setActiveSection] = useState("personal");
   const [localEmployee, setLocalEmployee] = useState(employee);
+  const [editingSections, setEditingSections] = useState<{ [key: string]: boolean }>({});
+  const [sectionDrafts, setSectionDrafts] = useState<{ [key: string]: Partial<Employee> }>({});
+  const [savingSections, setSavingSections] = useState<{ [key: string]: boolean }>({});
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -85,29 +89,71 @@ export function EmployeeDetailClient({
     setLocalEmployee(employee);
   }, [employee]);
 
-  const handleFieldSave = async (field: keyof Employee, value: string) => {
-    const updates = { [field]: value };
+  const handleSectionEdit = (sectionId: string) => {
+    setEditingSections(prev => ({ ...prev, [sectionId]: true }));
+    setSectionDrafts(prev => ({ ...prev, [sectionId]: { ...localEmployee } }));
+  };
 
-    // If custom onSave handler is provided, use it
-    if (onSave) {
-      await onSave(updates);
-      setLocalEmployee(prev => ({ ...prev, [field]: value }));
-      return;
+  const handleSectionCancel = (sectionId: string) => {
+    setEditingSections(prev => ({ ...prev, [sectionId]: false }));
+    setSectionDrafts(prev => {
+      const newDrafts = { ...prev };
+      delete newDrafts[sectionId];
+      return newDrafts;
+    });
+  };
+
+  const handleSectionSave = async (sectionId: string) => {
+    const draft = sectionDrafts[sectionId];
+    if (!draft) return;
+
+    setSavingSections(prev => ({ ...prev, [sectionId]: true }));
+
+    try {
+      // If custom onSave handler is provided, use it
+      if (onSave) {
+        await onSave(draft);
+        setLocalEmployee(prev => ({ ...prev, ...draft }));
+      } else {
+        // Otherwise, use the default server action
+        const result = await updateEmployee(employee.id, draft);
+
+        if (result.success) {
+          setLocalEmployee(prev => ({ ...prev, ...draft }));
+          router.refresh();
+        } else {
+          alert(`Failed to save: ${result.error}`);
+          return;
+        }
+      }
+
+      // Exit edit mode on success
+      setEditingSections(prev => ({ ...prev, [sectionId]: false }));
+      setSectionDrafts(prev => {
+        const newDrafts = { ...prev };
+        delete newDrafts[sectionId];
+        return newDrafts;
+      });
+    } catch (error) {
+      console.error('Error saving section:', error);
+      alert('Failed to save changes');
+    } finally {
+      setSavingSections(prev => ({ ...prev, [sectionId]: false }));
     }
+  };
 
-    // Otherwise, use the default server action
-    const result = await updateEmployee(employee.id, updates);
+  const handleFieldChange = (sectionId: string, field: keyof Employee, value: string) => {
+    setSectionDrafts(prev => ({
+      ...prev,
+      [sectionId]: {
+        ...prev[sectionId],
+        [field]: value,
+      },
+    }));
+  };
 
-    if (result.success) {
-      // Update local state optimistically
-      setLocalEmployee(prev => ({ ...prev, [field]: value }));
-      // Refresh server data in background
-      router.refresh();
-    } else {
-      // Show error to user
-      alert(`Failed to save: ${result.error}`);
-      throw new Error(result.error);
-    }
+  const getSectionData = (sectionId: string) => {
+    return editingSections[sectionId] ? sectionDrafts[sectionId] || localEmployee : localEmployee;
   };
 
   useEffect(() => {
@@ -247,63 +293,76 @@ export function EmployeeDetailClient({
                 title="Personal Information"
                 icon={User}
                 theme="blue"
+                editable
+                isEditing={editingSections["personal"]}
+                onEdit={() => handleSectionEdit("personal")}
+                onSave={() => handleSectionSave("personal")}
+                onCancel={() => handleSectionCancel("personal")}
+                isSaving={savingSections["personal"]}
               >
                 <DataGrid>
-                  <EditableDataField
+                  <SectionEditableField
                     label="First Name"
-                    value={localEmployee.first_name}
+                    name="first_name"
+                    value={getSectionData("personal").first_name}
                     theme="blue"
-                    editable
-                    onSave={(value) => handleFieldSave('first_name', value)}
+                    isEditing={editingSections["personal"]}
+                    onChange={(value) => handleFieldChange("personal", "first_name", value)}
                   />
-                  <EditableDataField
+                  <SectionEditableField
                     label="Last Name"
-                    value={localEmployee.last_name}
+                    name="last_name"
+                    value={getSectionData("personal").last_name}
                     theme="blue"
-                    editable
-                    onSave={(value) => handleFieldSave('last_name', value)}
+                    isEditing={editingSections["personal"]}
+                    onChange={(value) => handleFieldChange("personal", "last_name", value)}
                   />
                   <DataField label="Employee ID" value={`#${localEmployee.id}`} theme="blue" />
-                  <EditableDataField
+                  <SectionEditableField
                     label="Email Address"
-                    value={localEmployee.email}
+                    name="email"
+                    value={getSectionData("personal").email}
                     icon={Mail}
                     theme="blue"
-                    editable
                     type="email"
-                    onSave={(value) => handleFieldSave('email', value)}
+                    isEditing={editingSections["personal"]}
+                    onChange={(value) => handleFieldChange("personal", "email", value)}
                   />
-                  <EditableDataField
+                  <SectionEditableField
                     label="Phone Number"
-                    value={localEmployee.phone}
+                    name="phone"
+                    value={getSectionData("personal").phone}
                     icon={Phone}
                     theme="blue"
-                    editable
                     type="tel"
-                    onSave={(value) => handleFieldSave('phone', value)}
+                    isEditing={editingSections["personal"]}
+                    onChange={(value) => handleFieldChange("personal", "phone", value)}
                   />
-                  <EditableDataField
+                  <SectionEditableField
                     label="Address"
-                    value={localEmployee.address}
+                    name="address"
+                    value={getSectionData("personal").address}
                     icon={MapPin}
                     theme="blue"
-                    editable
                     multiline
-                    onSave={(value) => handleFieldSave('address', value)}
+                    isEditing={editingSections["personal"]}
+                    onChange={(value) => handleFieldChange("personal", "address", value)}
                   />
-                  <EditableDataField
+                  <SectionEditableField
                     label="State"
-                    value={localEmployee.state}
+                    name="state"
+                    value={getSectionData("personal").state}
                     theme="blue"
-                    editable
-                    onSave={(value) => handleFieldSave('state', value)}
+                    isEditing={editingSections["personal"]}
+                    onChange={(value) => handleFieldChange("personal", "state", value)}
                   />
-                  <EditableDataField
+                  <SectionEditableField
                     label="Post Code"
-                    value={localEmployee.post_code}
+                    name="post_code"
+                    value={getSectionData("personal").post_code}
                     theme="blue"
-                    editable
-                    onSave={(value) => handleFieldSave('post_code', value)}
+                    isEditing={editingSections["personal"]}
+                    onChange={(value) => handleFieldChange("personal", "post_code", value)}
                   />
                 </DataGrid>
               </SectionCard>
@@ -315,35 +374,44 @@ export function EmployeeDetailClient({
                 title="Employment Details"
                 icon={Briefcase}
                 theme="purple"
+                editable
+                isEditing={editingSections["employment"]}
+                onEdit={() => handleSectionEdit("employment")}
+                onSave={() => handleSectionSave("employment")}
+                onCancel={() => handleSectionCancel("employment")}
+                isSaving={savingSections["employment"]}
               >
                 <DataGrid>
-                  <EditableDataField
+                  <SectionEditableField
                     label="Position"
-                    value={localEmployee.role}
+                    name="role"
+                    value={getSectionData("employment").role}
                     theme="purple"
-                    editable
-                    onSave={(value) => handleFieldSave('role', value)}
+                    isEditing={editingSections["employment"]}
+                    onChange={(value) => handleFieldChange("employment", "role", value)}
                   />
-                  <EditableDataField
+                  <SectionEditableField
                     label="Department"
-                    value={localEmployee.department}
+                    name="department"
+                    value={getSectionData("employment").department}
                     theme="purple"
-                    editable
-                    onSave={(value) => handleFieldSave('department', value)}
+                    isEditing={editingSections["employment"]}
+                    onChange={(value) => handleFieldChange("employment", "department", value)}
                   />
                   <DataField label="Join Date" value={localEmployee.created_at} theme="purple" />
-                  <EditableDataField
+                  <SectionEditableField
                     label="Employment Status"
-                    value={localEmployee.status}
+                    name="status"
+                    value={getSectionData("employment").status}
                     theme="purple"
-                    editable
                     type="select"
                     options={[
                       { value: 'active', label: 'Active' },
                       { value: 'inactive', label: 'Inactive' },
                       { value: 'pending', label: 'Pending' },
                     ]}
-                    onSave={(value) => handleFieldSave('status', value)}
+                    isEditing={editingSections["employment"]}
+                    onChange={(value) => handleFieldChange("employment", "status", value)}
                   />
                   <DataField label="Employment Type" value="Full-time" theme="purple" />
                   <DataField label="Reports To" value="Sarah Wilson, Director" theme="purple" />

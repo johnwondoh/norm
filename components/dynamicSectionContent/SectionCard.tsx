@@ -1,5 +1,5 @@
 import { forwardRef, ReactNode } from "react";
-import { LucideIcon } from "lucide-react";
+import { LucideIcon, Edit2, Save, X } from "lucide-react";
 
 // Color theme configuration
 export type SectionTheme =
@@ -58,10 +58,16 @@ interface SectionCardProps {
   icon: LucideIcon;
   theme: SectionTheme;
   children: ReactNode;
+  editable?: boolean;
+  isEditing?: boolean;
+  onEdit?: () => void;
+  onSave?: () => void;
+  onCancel?: () => void;
+  isSaving?: boolean;
 }
 
 export const SectionCard = forwardRef<HTMLElement, SectionCardProps>(
-  ({ id, title, icon: Icon, theme, children }, ref) => {
+  ({ id, title, icon: Icon, theme, children, editable = false, isEditing = false, onEdit, onSave, onCancel, isSaving = false }, ref) => {
     const styles = themeStyles[theme];
 
     return (
@@ -70,11 +76,46 @@ export const SectionCard = forwardRef<HTMLElement, SectionCardProps>(
         ref={ref}
         className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8"
       >
-        <div className="flex items-center gap-3 mb-6">
-          <div className={`p-3 ${styles.bg} rounded-xl`}>
-            <Icon className={`w-6 h-6 ${styles.icon}`} />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className={`p-3 ${styles.bg} rounded-xl`}>
+              <Icon className={`w-6 h-6 ${styles.icon}`} />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900">{title}</h2>
           </div>
-          <h2 className="text-xl font-bold text-gray-900">{title}</h2>
+
+          {editable && (
+            <div className="flex items-center gap-2">
+              {isEditing ? (
+                <>
+                  <button
+                    onClick={onSave}
+                    disabled={isSaving}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-green-600 text-white rounded-full font-medium hover:bg-green-700 transition-colors shadow-lg shadow-green-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Save className="w-4 h-4" />
+                    Save
+                  </button>
+                  <button
+                    onClick={onCancel}
+                    disabled={isSaving}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-gray-200 text-gray-700 rounded-full font-medium hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <X className="w-4 h-4" />
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={onEdit}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/25"
+                >
+                  <Edit2 className="w-4 h-4" />
+                  Edit
+                </button>
+              )}
+            </div>
+          )}
         </div>
         {children}
       </section>
