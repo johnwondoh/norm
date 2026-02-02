@@ -31,7 +31,7 @@ export function SectionEditableField({
 
   const renderInput = () => {
     const inputClasses =
-      "w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base font-medium text-gray-900";
+      "w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base font-medium text-gray-900 bg-white";
 
     if (type === "select" && options) {
       return (
