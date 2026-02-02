@@ -21,6 +21,8 @@ import {
 import { Employee } from "@/types/employee";
 // import { Sidebar } from "./Sidebar";
 import { Sidebar } from "@/components/crm";
+import { updateEmployee } from "./actions";
+import { useRouter } from "next/navigation";
 
 // Import reusable components
 import {
@@ -38,12 +40,14 @@ import {
   ProgressBar,
   StatusCard,
   StatusCardList,
+  EditableDataField,
 } from "@/components/dynamicSectionContent";
 
 interface EmployeeDetailPageProps {
   employee: Employee;
   onBack?: () => void;
   onEdit?: () => void;
+  onSave?: (updatedEmployee: Partial<Employee>) => Promise<void>;
 }
 
 interface Section {
@@ -68,10 +72,43 @@ export function EmployeeDetailClient({
   employee,
   onBack,
   onEdit,
+  onSave,
 }: EmployeeDetailPageProps) {
+  const router = useRouter();
   const [activeSection, setActiveSection] = useState("personal");
+  const [localEmployee, setLocalEmployee] = useState(employee);
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
   const contentRef = useRef<HTMLDivElement | null>(null);
+
+  // Update local state when employee prop changes
+  useEffect(() => {
+    setLocalEmployee(employee);
+  }, [employee]);
+
+  const handleFieldSave = async (field: keyof Employee, value: string) => {
+    const updates = { [field]: value };
+
+    // If custom onSave handler is provided, use it
+    if (onSave) {
+      await onSave(updates);
+      setLocalEmployee(prev => ({ ...prev, [field]: value }));
+      return;
+    }
+
+    // Otherwise, use the default server action
+    const result = await updateEmployee(employee.id, updates);
+
+    if (result.success) {
+      // Update local state optimistically
+      setLocalEmployee(prev => ({ ...prev, [field]: value }));
+      // Refresh server data in background
+      router.refresh();
+    } else {
+      // Show error to user
+      alert(`Failed to save: ${result.error}`);
+      throw new Error(result.error);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -212,12 +249,62 @@ export function EmployeeDetailClient({
                 theme="blue"
               >
                 <DataGrid>
-                  <DataField label="Full Name" value={employee.first_name + ' ' + employee.last_name} theme="blue" />
-                  <DataField label="Employee ID" value={`#${employee.id}`} theme="blue" />
-                  <DataField label="Email Address" value={employee.email} icon={Mail} theme="blue" />
-                  <DataField label="Phone Number" value={employee.phone} icon={Phone} theme="blue" />
-                  <DataField label="Address" value="123 Main St, Sydney NSW 2000" icon={MapPin} theme="blue" />
-                  <DataField label="Date of Birth" value="January 15, 1990" theme="blue" />
+                  <EditableDataField
+                    label="First Name"
+                    value={localEmployee.first_name}
+                    theme="blue"
+                    editable
+                    onSave={(value) => handleFieldSave('first_name', value)}
+                  />
+                  <EditableDataField
+                    label="Last Name"
+                    value={localEmployee.last_name}
+                    theme="blue"
+                    editable
+                    onSave={(value) => handleFieldSave('last_name', value)}
+                  />
+                  <DataField label="Employee ID" value={`#${localEmployee.id}`} theme="blue" />
+                  <EditableDataField
+                    label="Email Address"
+                    value={localEmployee.email}
+                    icon={Mail}
+                    theme="blue"
+                    editable
+                    type="email"
+                    onSave={(value) => handleFieldSave('email', value)}
+                  />
+                  <EditableDataField
+                    label="Phone Number"
+                    value={localEmployee.phone}
+                    icon={Phone}
+                    theme="blue"
+                    editable
+                    type="tel"
+                    onSave={(value) => handleFieldSave('phone', value)}
+                  />
+                  <EditableDataField
+                    label="Address"
+                    value={localEmployee.address}
+                    icon={MapPin}
+                    theme="blue"
+                    editable
+                    multiline
+                    onSave={(value) => handleFieldSave('address', value)}
+                  />
+                  <EditableDataField
+                    label="State"
+                    value={localEmployee.state}
+                    theme="blue"
+                    editable
+                    onSave={(value) => handleFieldSave('state', value)}
+                  />
+                  <EditableDataField
+                    label="Post Code"
+                    value={localEmployee.post_code}
+                    theme="blue"
+                    editable
+                    onSave={(value) => handleFieldSave('post_code', value)}
+                  />
                 </DataGrid>
               </SectionCard>
 
@@ -230,13 +317,33 @@ export function EmployeeDetailClient({
                 theme="purple"
               >
                 <DataGrid>
-                  <DataField label="Position" value={employee.role} theme="purple" />
-                  <DataField label="Department" value={employee.department} theme="purple" />
-                  <DataField label="Join Date" value={employee.created_at} theme="purple" />
-                  <DataField
-                    label="Employment Status"
-                    value={<StatusBadge status={employee.status} />}
+                  <EditableDataField
+                    label="Position"
+                    value={localEmployee.role}
                     theme="purple"
+                    editable
+                    onSave={(value) => handleFieldSave('role', value)}
+                  />
+                  <EditableDataField
+                    label="Department"
+                    value={localEmployee.department}
+                    theme="purple"
+                    editable
+                    onSave={(value) => handleFieldSave('department', value)}
+                  />
+                  <DataField label="Join Date" value={localEmployee.created_at} theme="purple" />
+                  <EditableDataField
+                    label="Employment Status"
+                    value={localEmployee.status}
+                    theme="purple"
+                    editable
+                    type="select"
+                    options={[
+                      { value: 'active', label: 'Active' },
+                      { value: 'inactive', label: 'Inactive' },
+                      { value: 'pending', label: 'Pending' },
+                    ]}
+                    onSave={(value) => handleFieldSave('status', value)}
                   />
                   <DataField label="Employment Type" value="Full-time" theme="purple" />
                   <DataField label="Reports To" value="Sarah Wilson, Director" theme="purple" />

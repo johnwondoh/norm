@@ -4,6 +4,7 @@ export type { SectionTheme } from "./SectionCard";
 
 // Data display components
 export { DataField, DataGrid, StatusBadge } from "./DataField";
+export { EditableDataField } from "./EditableDataField";
 
 // List components
 export { InfoList, AmountTrailing, TimeTrailing } from "./InfoList";
