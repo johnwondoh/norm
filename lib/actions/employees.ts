@@ -17,6 +17,12 @@ export async function getEmployees() {
   return await supabase.from('employees').select();
 }
 
+export async function getEmployeeByID(inputID: Number) {
+  const supabase = await createClient();
+  return await supabase.from('employees').select()
+  .eq('id', inputID);
+}
+
 // export async function updateEmployee(id: string, data: any) {
 //   const supabase = await createClient();
 //   return await supabase.from('employees').update(data).eq('id', id);
