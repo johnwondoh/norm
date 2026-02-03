@@ -15,18 +15,18 @@ import { useRouter } from "next/navigation";
 
 const statusOptions: FilterOption[] = [
   { label: "All Status", value: "all" },
-  { label: "Active", value: "active" },
-  { label: "Inactive", value: "inactive" },
-  { label: "Pending", value: "pending" },
-  { label: "On Hold", value: "on-hold" },
-  { label: "Suspended", value: "suspended" },
+  { label: "Active", value: "Active" },
+  { label: "Inactive", value: "Inactive" },
+  { label: "On Hold", value: "On Hold" },
+  { label: "Discharged", value: "Discharged" },
 ];
 
-const supportCategoryOptions: FilterOption[] = [
-  { label: "All Categories", value: "all" },
-  { label: "Core", value: "Core" },
-  { label: "Capacity Building", value: "Capacity Building" },
-  { label: "Capital", value: "Capital" },
+const ndisStatusOptions: FilterOption[] = [
+  { label: "All NDIS Status", value: "all" },
+  { label: "Active", value: "Active" },
+  { label: "Suspended", value: "Suspended" },
+  { label: "Cancelled", value: "Cancelled" },
+  { label: "Expired", value: "Expired" },
 ];
 
 const pageSizeOptions: FilterOption[] = [
@@ -36,7 +36,7 @@ const pageSizeOptions: FilterOption[] = [
   { label: "20 per page", value: "20" },
 ];
 
-type SortField = "name" | "ndis_number" | "status" | "support_category" | "created_at";
+type SortField = "name" | "ndis_number" | "status" | "ndis_status" | "intake_date";
 type SortDirection = "asc" | "desc";
 
 interface ParticipantsClientProps {
@@ -49,7 +49,7 @@ export default function ParticipantsClient({ initialParticipants }: Participants
   // Filters
   const [searchQuery, setSearchQuery] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("all");
-  const [supportCategoryFilter, setSupportCategoryFilter] = React.useState("all");
+  const [ndisStatusFilter, setNdisStatusFilter] = React.useState("all");
 
   // Sidebar
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
@@ -69,21 +69,20 @@ export default function ParticipantsClient({ initialParticipants }: Participants
       const matchesSearch =
         searchQuery === "" ||
         fullName.includes(searchQuery.toLowerCase()) ||
+        (p.preferred_name ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
         (p.email ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
         (p.ndis_number ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (p.primary_diagnosis ?? "").toLowerCase().includes(searchQuery.toLowerCase());
+        (p.phone ?? "").toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesStatus =
-        statusFilter === "all" ||
-        (p.status ?? "").toLowerCase() === statusFilter.toLowerCase();
+        statusFilter === "all" || (p.status ?? "") === statusFilter;
 
-      const matchesSupportCategory =
-        supportCategoryFilter === "all" ||
-        (p.support_category ?? "").toLowerCase() === supportCategoryFilter.toLowerCase();
+      const matchesNdisStatus =
+        ndisStatusFilter === "all" || (p.ndis_status ?? "") === ndisStatusFilter;
 
-      return matchesSearch && matchesStatus && matchesSupportCategory;
+      return matchesSearch && matchesStatus && matchesNdisStatus;
     });
-  }, [initialParticipants, searchQuery, statusFilter, supportCategoryFilter]);
+  }, [initialParticipants, searchQuery, statusFilter, ndisStatusFilter]);
 
   // --- Sorting ---
   const sortedParticipants = React.useMemo(() => {
@@ -104,13 +103,13 @@ export default function ParticipantsClient({ initialParticipants }: Participants
           aVal = (a.status ?? "").toLowerCase();
           bVal = (b.status ?? "").toLowerCase();
           break;
-        case "support_category":
-          aVal = (a.support_category ?? "").toLowerCase();
-          bVal = (b.support_category ?? "").toLowerCase();
+        case "ndis_status":
+          aVal = (a.ndis_status ?? "").toLowerCase();
+          bVal = (b.ndis_status ?? "").toLowerCase();
           break;
-        case "created_at":
-          aVal = a.created_at;
-          bVal = b.created_at;
+        case "intake_date":
+          aVal = a.intake_date ?? "";
+          bVal = b.intake_date ?? "";
           break;
         default:
           return 0;
@@ -131,22 +130,15 @@ export default function ParticipantsClient({ initialParticipants }: Participants
   // Reset to page 1 when filters / sort change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, statusFilter, supportCategoryFilter, pageSize, sortField, sortDirection]);
+  }, [searchQuery, statusFilter, ndisStatusFilter, pageSize, sortField, sortDirection]);
 
   // --- Metrics ---
   const metrics = React.useMemo(() => {
     const total = initialParticipants.length;
-    const active = initialParticipants.filter(
-      (p) => (p.status ?? "").toLowerCase() === "active"
-    ).length;
-    const pending = initialParticipants.filter(
-      (p) => (p.status ?? "").toLowerCase() === "pending"
-    ).length;
-    const onHoldOrSuspended = initialParticipants.filter((p) => {
-      const s = (p.status ?? "").toLowerCase();
-      return s === "on-hold" || s === "suspended";
-    }).length;
-    return { total, active, pending, onHoldOrSuspended };
+    const active = initialParticipants.filter((p) => p.status === "Active").length;
+    const onHold = initialParticipants.filter((p) => p.status === "On Hold").length;
+    const discharged = initialParticipants.filter((p) => p.status === "Discharged").length;
+    return { total, active, onHold, discharged };
   }, [initialParticipants]);
 
   // --- Handlers ---
@@ -206,15 +198,15 @@ export default function ParticipantsClient({ initialParticipants }: Participants
               iconBgColor="bg-green-100"
             />
             <SummaryMetricCard
-              title="Pending"
-              value={metrics.pending}
+              title="On Hold"
+              value={metrics.onHold}
               icon={Clock}
               iconColor="text-yellow-600"
               iconBgColor="bg-yellow-100"
             />
             <SummaryMetricCard
-              title="On Hold / Suspended"
-              value={metrics.onHoldOrSuspended}
+              title="Discharged"
+              value={metrics.discharged}
               icon={AlertCircle}
               iconColor="text-red-600"
               iconBgColor="bg-red-100"
@@ -226,7 +218,7 @@ export default function ParticipantsClient({ initialParticipants }: Participants
             <SearchBar
               value={searchQuery}
               onChange={setSearchQuery}
-              placeholder="Search by name, email, NDIS number, or diagnosis..."
+              placeholder="Search by name, email, NDIS number, or phone..."
               className="flex-1"
             />
             <div className="flex gap-3">
@@ -238,10 +230,10 @@ export default function ParticipantsClient({ initialParticipants }: Participants
                 showIcon
               />
               <FilterDropdown
-                label="All Categories"
-                options={supportCategoryOptions}
-                value={supportCategoryFilter}
-                onChange={setSupportCategoryFilter}
+                label="All NDIS Status"
+                options={ndisStatusOptions}
+                value={ndisStatusFilter}
+                onChange={setNdisStatusFilter}
               />
             </div>
           </div>
