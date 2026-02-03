@@ -87,6 +87,60 @@ export type Database = {
         }
         Relationships: []
       }
+      participants: {
+        Row: {
+          id: number
+          created_at: string
+          first_name: string | null
+          last_name: string | null
+          email: string | null
+          phone: string | null
+          address: string | null
+          state: string | null
+          post_code: string | null
+          country: string | null
+          date_of_birth: string | null
+          status: string | null
+          ndis_number: string | null
+          primary_diagnosis: string | null
+          support_category: string | null
+        }
+        Insert: {
+          id?: number
+          created_at?: string
+          first_name?: string | null
+          last_name?: string | null
+          email?: string | null
+          phone?: string | null
+          address?: string | null
+          state?: string | null
+          post_code?: string | null
+          country?: string | null
+          date_of_birth?: string | null
+          status?: string | null
+          ndis_number?: string | null
+          primary_diagnosis?: string | null
+          support_category?: string | null
+        }
+        Update: {
+          id?: number
+          created_at?: string
+          first_name?: string | null
+          last_name?: string | null
+          email?: string | null
+          phone?: string | null
+          address?: string | null
+          state?: string | null
+          post_code?: string | null
+          country?: string | null
+          date_of_birth?: string | null
+          status?: string | null
+          ndis_number?: string | null
+          primary_diagnosis?: string | null
+          support_category?: string | null
+        }
+        Relationships: []
+      }
       todos: {
         Row: {
           id: number
