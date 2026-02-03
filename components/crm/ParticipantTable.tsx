@@ -16,17 +16,17 @@ export interface ParticipantTableProps {
 }
 
 const statusColors: Record<string, string> = {
-  active: "bg-green-100 text-green-700",
-  inactive: "bg-red-100 text-red-700",
-  pending: "bg-yellow-100 text-yellow-700",
-  "on-hold": "bg-orange-100 text-orange-700",
-  suspended: "bg-slate-100 text-slate-700",
+  Active: "bg-green-100 text-green-700",
+  Inactive: "bg-red-100 text-red-700",
+  "On Hold": "bg-orange-100 text-orange-700",
+  Discharged: "bg-slate-100 text-slate-700",
 };
 
-const supportCategoryColors: Record<string, string> = {
-  "Core": "bg-blue-100 text-blue-700",
-  "Capacity Building": "bg-purple-100 text-purple-700",
-  "Capital": "bg-green-100 text-green-700",
+const ndisStatusColors: Record<string, string> = {
+  Active: "bg-blue-100 text-blue-700",
+  Suspended: "bg-red-100 text-red-700",
+  Cancelled: "bg-slate-100 text-slate-700",
+  Expired: "bg-yellow-100 text-yellow-700",
 };
 
 // Helper function to format date consistently on both server and client
@@ -37,11 +37,6 @@ const formatDate = (dateString: string | null): string => {
   const day = String(date.getDate()).padStart(2, "0");
   const year = date.getFullYear();
   return `${month}/${day}/${year}`;
-};
-
-const capitalize = (str: string | null): string => {
-  if (!str) return "-";
-  return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
 interface SortIconProps {
@@ -73,8 +68,8 @@ export function ParticipantTable({
     { key: "name", label: "Participant" },
     { key: "ndis_number", label: "NDIS Number" },
     { key: "status", label: "Status" },
-    { key: "support_category", label: "Support Category" },
-    { key: "created_at", label: "Registered" },
+    { key: "ndis_status", label: "NDIS Status" },
+    { key: "intake_date", label: "Intake Date" },
   ];
 
   return (
@@ -98,9 +93,6 @@ export function ParticipantTable({
               Contact
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Diagnosis
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Actions
             </th>
           </tr>
@@ -122,10 +114,11 @@ export function ParticipantTable({
                   </div>
                   <div>
                     <p className="font-medium text-slate-900">
-                      {participant.first_name} {participant.last_name}
+                      {participant.preferred_name || participant.first_name}{" "}
+                      {participant.last_name}
                     </p>
                     <p className="text-sm text-slate-500">
-                      Registered {formatDate(participant.created_at)}
+                      DOB {formatDate(participant.date_of_birth)}
                     </p>
                   </div>
                 </div>
@@ -144,29 +137,29 @@ export function ParticipantTable({
                   variant="secondary"
                   className={cn(
                     "font-medium",
-                    statusColors[participant.status?.toLowerCase() ?? ""] || "bg-slate-100 text-slate-700"
+                    statusColors[participant.status ?? ""] || "bg-slate-100 text-slate-700"
                   )}
                 >
-                  {capitalize(participant.status)}
+                  {participant.status || "-"}
                 </Badge>
               </td>
 
-              {/* Support Category */}
+              {/* NDIS Status */}
               <td className="px-4 py-4">
                 <Badge
                   variant="secondary"
                   className={cn(
                     "font-normal",
-                    supportCategoryColors[participant.support_category ?? ""] || "bg-slate-100 text-slate-700"
+                    ndisStatusColors[participant.ndis_status ?? ""] || "bg-slate-100 text-slate-700"
                   )}
                 >
-                  {participant.support_category || "-"}
+                  {participant.ndis_status || "-"}
                 </Badge>
               </td>
 
-              {/* Registered date */}
+              {/* Intake Date */}
               <td className="px-4 py-4">
-                <span className="text-sm text-slate-600">{formatDate(participant.created_at)}</span>
+                <span className="text-sm text-slate-600">{formatDate(participant.intake_date)}</span>
               </td>
 
               {/* Contact */}
@@ -181,13 +174,6 @@ export function ParticipantTable({
                     <span>{participant.phone || "-"}</span>
                   </div>
                 </div>
-              </td>
-
-              {/* Primary Diagnosis */}
-              <td className="px-4 py-4">
-                <span className="text-sm text-slate-700">
-                  {participant.primary_diagnosis || "-"}
-                </span>
               </td>
 
               {/* Actions */}
