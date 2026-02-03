@@ -213,7 +213,8 @@ export function EmployeeDetailClient({
   ];
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50 flex overflow-hidden">
+    // <div className="h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50 flex overflow-hidden">
+    <div className="h-screen bg-gray-50 from-gray-50 via-blue-50/30 to-gray-50 flex overflow-hidden">
       <Sidebar currentPath="staff" />
 
       <div className="flex-1 flex flex-col overflow-hidden">
