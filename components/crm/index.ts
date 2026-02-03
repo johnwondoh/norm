@@ -12,3 +12,6 @@ export type { SearchBarProps } from "./SearchBar";
 
 export { FilterDropdown } from "./FilterDropdown";
 export type { FilterDropdownProps, FilterOption } from "./FilterDropdown";
+
+export { ParticipantTable } from "./ParticipantTable";
+export type { ParticipantTableProps } from "./ParticipantTable";

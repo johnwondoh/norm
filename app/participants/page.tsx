@@ -1,29 +1,25 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
-// import EmployeesClient from "@/app/employees/EmployeeClient";
-import Loading from "@/app/employees/loading";
+import ParticipantsClient from "@/app/participants/ParticipantClient";
+import Loading from "@/app/participants/loading";
 
-async function EmployeesData() {
+async function ParticipantsData() {
   const supabase = await createClient();
   const { data: participants, error } = await supabase
-    .from('participants')
+    .from("participants")
     .select();
 
   if (error) {
-    console.error("Error fetching employees:", error);
+    console.error("Error fetching participants:", error);
   }
 
-  console.log(participants)
-
-//   return <EmployeesClient initialEmployees={employees || []} />;
-return <h1>jjjPPP</h1>
+  return <ParticipantsClient initialParticipants={participants || []} />;
 }
 
-export default function EmployeesPage() {
+export default function ParticipantsPage() {
   return (
     <Suspense fallback={<Loading />}>
-      <EmployeesData />
+      <ParticipantsData />
     </Suspense>
   );
 }
-
