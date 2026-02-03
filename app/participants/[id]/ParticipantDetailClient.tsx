@@ -596,7 +596,7 @@ export function ParticipantDetailClient({
                   ============================================================ */}
               <SectionCard
                 id="personal"
-                ref={(el) => (sectionRefs.current["personal"] = el)}
+                ref={(el) => { sectionRefs.current["personal"] = el; }}
                 title="Personal Information"
                 icon={User}
                 theme="blue"
@@ -692,7 +692,7 @@ export function ParticipantDetailClient({
                   ============================================================ */}
               <SectionCard
                 id="contacts"
-                ref={(el) => (sectionRefs.current["contacts"] = el)}
+                ref={(el) => { sectionRefs.current["contacts"] = el; }}
                 title="Contacts & Guardians"
                 icon={Users}
                 theme="purple"
@@ -709,7 +709,7 @@ export function ParticipantDetailClient({
                   ============================================================ */}
               <SectionCard
                 id="medical"
-                ref={(el) => (sectionRefs.current["medical"] = el)}
+                ref={(el) => { sectionRefs.current["medical"] = el; }}
                 title="Medical Information"
                 icon={Heart}
                 theme="red"
@@ -759,7 +759,7 @@ export function ParticipantDetailClient({
                   ============================================================ */}
               <SectionCard
                 id="ndis-plan"
-                ref={(el) => (sectionRefs.current["ndis-plan"] = el)}
+                ref={(el) => { sectionRefs.current["ndis-plan"] = el; }}
                 title="NDIS Plan & Budget"
                 icon={DollarSign}
                 theme="green"
@@ -818,7 +818,7 @@ export function ParticipantDetailClient({
                   ============================================================ */}
               <SectionCard
                 id="goals"
-                ref={(el) => (sectionRefs.current["goals"] = el)}
+                ref={(el) => { sectionRefs.current["goals"] = el; }}
                 title="Goals"
                 icon={Target}
                 theme="orange"
@@ -854,7 +854,7 @@ export function ParticipantDetailClient({
                   ============================================================ */}
               <SectionCard
                 id="risk"
-                ref={(el) => (sectionRefs.current["risk"] = el)}
+                ref={(el) => { sectionRefs.current["risk"] = el; }}
                 title="Risk & Safety"
                 icon={AlertTriangle}
                 theme="pink"
@@ -894,7 +894,7 @@ export function ParticipantDetailClient({
                   ============================================================ */}
               <SectionCard
                 id="services"
-                ref={(el) => (sectionRefs.current["services"] = el)}
+                ref={(el) => { sectionRefs.current["services"] = el; }}
                 title="Service Bookings"
                 icon={Calendar}
                 theme="indigo"
@@ -918,7 +918,7 @@ export function ParticipantDetailClient({
                   ============================================================ */}
               <SectionCard
                 id="documents"
-                ref={(el) => (sectionRefs.current["documents"] = el)}
+                ref={(el) => { sectionRefs.current["documents"] = el; }}
                 title="Documents & Consents"
                 icon={FileText}
                 theme="indigo"
@@ -935,7 +935,7 @@ export function ParticipantDetailClient({
                   ============================================================ */}
               <SectionCard
                 id="notes"
-                ref={(el) => (sectionRefs.current["notes"] = el)}
+                ref={(el) => { sectionRefs.current["notes"] = el; }}
                 title="Service Notes"
                 icon={ClipboardList}
                 theme="purple"
@@ -971,7 +971,7 @@ export function ParticipantDetailClient({
                   ============================================================ */}
               <SectionCard
                 id="incidents"
-                ref={(el) => (sectionRefs.current["incidents"] = el)}
+                ref={(el) => { sectionRefs.current["incidents"] = el; }}
                 title="Incident Reports"
                 icon={Shield}
                 theme="red"
@@ -1012,10 +1012,10 @@ export function ParticipantDetailClient({
                 )}
               </SectionCard>
 
-            </div> {/* max-w-4xl */}
-          </div> {/* scrollable content */}
-        </div> {/* flex layout */}
-      </div> {/* flex-1 column */}
-    </div> {/* root */}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
