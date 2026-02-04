@@ -550,7 +550,7 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
                     });
                   })()}
 
-                  {/* plain employee rows – no appointment selected */}
+                  {/* employee cards – no appointment selected */}
                   {!matchingAppointment && allEmployees
                     .filter((emp) => {
                       if (!sidebarSearch) return true;
@@ -568,19 +568,33 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
                       ).length;
 
                       return (
-                        <div key={emp.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                          <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                            <span className="text-xs font-bold text-indigo-600">
-                              {emp.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-                            </span>
+                        <div key={emp.id} className="border border-gray-100 bg-white rounded-xl overflow-hidden">
+                          {/* top row */}
+                          <div className="p-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                                  <span className="text-xs font-bold text-indigo-600">
+                                    {emp.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                                  </span>
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-gray-900 text-sm">{emp.name}</p>
+                                  <p className="text-xs text-gray-500">{emp.role}</p>
+                                </div>
+                              </div>
+                              <div className="text-right flex-shrink-0">
+                                <p className="text-xs font-semibold text-slate-600">{assignedCount}</p>
+                                <p className="text-xs text-slate-400">shifts</p>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate">{emp.name}</p>
-                            <p className="text-xs text-gray-500">{emp.workerType}</p>
-                          </div>
-                          <div className="text-right flex-shrink-0">
-                            <p className="text-xs font-semibold text-slate-600">{assignedCount}</p>
-                            <p className="text-xs text-slate-400">shifts</p>
+
+                          {/* score bar – filled based on assigned workload */}
+                          <div className="px-3 pb-3">
+                            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                              <div className="h-full rounded-full bg-indigo-400 transition-all duration-500" style={{ width: `${Math.min(assignedCount * 20, 100)}%` }} />
+                            </div>
                           </div>
                         </div>
                       );
