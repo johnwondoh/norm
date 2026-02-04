@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import {
   AlertCircle,
   CheckCircle2,
+  Star,
   Users,
   DollarSign,
   Plus,
@@ -12,7 +13,7 @@ import {
 } from "lucide-react";
 import { Sidebar, SummaryMetricCard, FilterDropdown } from "@/components/crm";
 import type { FilterOption } from "@/components/crm";
-import { AppointmentCard, StaffMatchPanel, ScheduleCalendar } from "@/components/scheduling";
+import { AppointmentCard, ScheduleCalendar } from "@/components/scheduling";
 import type { Appointment, Employee, StaffCandidate } from "@/types/scheduling";
 
 // ---------------------------------------------------------------------------
@@ -110,11 +111,11 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
   const [workerTypeFilter, setWorkerTypeFilter] = useState("all");
   const [dateFilter, setDateFilter]             = useState("all");
 
-  // ── employee search (for the sidebar search inside the list) ──
-  const [employeeSearch, setEmployeeSearch] = useState("");
-
   // ── staff-match panel ──
   const [matchingAppointment, setMatchingAppointment] = useState<Appointment | null>(null);
+
+  // ── sidebar search (shared: filters employees or candidates depending on selection) ──
+  const [sidebarSearch, setSidebarSearch] = useState("");
 
   // ---------------------------------------------------------------------------
   // Derived / filtered data
@@ -181,6 +182,7 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
     // clicking the already-selected card closes the panel (toggle)
     if (matchingAppointment?.id === appt.id) {
       setMatchingAppointment(null);
+      setSidebarSearch("");
       return;
     }
     // otherwise open / swap to the new appointment's candidates
@@ -386,78 +388,205 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
               </div>
             </div>
 
-            {/* RIGHT – unified sidebar: employee list ↔ staff match */}
-            <aside className="w-80 flex-shrink-0 flex flex-col" style={{ maxHeight: "calc(100vh - 260px)" }}>
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden flex-1">
+            {/* RIGHT – staff sidebar */}
+            <aside className="w-80 flex-shrink-0 flex flex-col" style={{ height: "calc(100vh - 260px)" }}>
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden flex-1 min-h-0">
 
-                {/* ── VIEW A: Employee list (shown when no appointment is selected) ── */}
-                {!matchingAppointment && (
-                  <div className="flex flex-col min-h-0 flex-1 p-5">
-                    <h3 className="text-sm font-bold text-slate-800 mb-1">Employees</h3>
-                    <p className="text-xs text-slate-500 mb-4">Search and preview available staff</p>
+                {/* ── sticky header: title + conditional participant banner ── */}
+                <div className="flex-shrink-0 p-4 pb-2">
+                  <h3 className="text-sm font-bold text-slate-800 mb-1">Staff</h3>
 
-                    {/* search */}
-                    <div className="relative mb-4">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      <input
-                        type="text"
-                        value={employeeSearch}
-                        onChange={(e) => setEmployeeSearch(e.target.value)}
-                        placeholder="Search employees…"
-                        className="w-full pl-9 pr-4 h-10 bg-slate-50 border border-slate-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
+                  {/* participant banner – only when an appointment is selected */}
+                  {matchingAppointment && (
+                    <div className="mt-2 flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xs font-bold text-white">
+                            {matchingAppointment.participant.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                          </span>
+                        </div>
+                        <p className="text-sm font-semibold text-blue-900 truncate">{matchingAppointment.participant.name}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => { setMatchingAppointment(null); setSidebarSearch(""); }}
+                        className="p-0.5 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                      >
+                        <X className="w-3.5 h-3.5 text-blue-500" />
+                      </button>
                     </div>
+                  )}
+                </div>
 
-                    {/* employee list (scrollable) */}
-                    <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-                      {allEmployees
-                        .filter((emp) => {
-                          if (!employeeSearch) return true;
-                          const q = employeeSearch.toLowerCase();
-                          return (
-                            emp.name.toLowerCase().includes(q) ||
-                            emp.role.toLowerCase().includes(q) ||
-                            emp.workerType.toLowerCase().includes(q) ||
-                            emp.skills.some((s) => s.toLowerCase().includes(q))
-                          );
-                        })
-                        .map((emp) => {
-                          const assignedCount = appointments.filter(
-                            (a) => a.assignedEmployee?.id === emp.id && a.status !== "Cancelled"
-                          ).length;
-
-                          return (
-                            <div key={emp.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                              <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                                <span className="text-xs font-bold text-indigo-600">
-                                  {emp.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-                                </span>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-gray-900 truncate">{emp.name}</p>
-                                <p className="text-xs text-gray-500">{emp.workerType}</p>
-                              </div>
-                              <div className="text-right flex-shrink-0">
-                                <p className="text-xs font-semibold text-slate-600">{assignedCount}</p>
-                                <p className="text-xs text-slate-400">shifts</p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                    </div>
-                  </div>
-                )}
-
-                {/* ── VIEW B: Staff match (shown when an appointment is selected) ── */}
-                {matchingAppointment && (
-                  <div className="flex flex-col min-h-0 flex-1">
-                    <StaffMatchPanel
-                      appointment={matchingAppointment}
-                      onClose={() => setMatchingAppointment(null)}
-                      onAssign={handleAssign}
+                {/* ── search ── */}
+                <div className="flex-shrink-0 px-4 pb-3">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      value={sidebarSearch}
+                      onChange={(e) => setSidebarSearch(e.target.value)}
+                      placeholder={matchingAppointment ? "Search staff by name or skill…" : "Search employees…"}
+                      className="w-full pl-9 pr-4 h-10 bg-slate-50 border border-slate-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-                )}
+                </div>
+
+                {/* ── scrollable list ── */}
+                <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-2 pr-5">
+
+                  {/* candidate cards – appointment selected */}
+                  {matchingAppointment && (() => {
+                    const q = sidebarSearch.toLowerCase();
+                    const candidates = (matchingAppointment.candidateEmployees ?? []).filter((c) =>
+                      !q ||
+                      c.employee.name.toLowerCase().includes(q) ||
+                      c.employee.role.toLowerCase().includes(q) ||
+                      c.employee.skills.some((s) => s.toLowerCase().includes(q))
+                    );
+
+                    if (candidates.length === 0) {
+                      return <p className="text-center text-gray-400 text-sm py-8">No matching staff found.</p>;
+                    }
+
+                    return candidates.map((candidate) => {
+                      const { employee, matchScore, matchQuality, matchedSkills, missingSkills } = candidate;
+                      const isCurrentlyAssigned = matchingAppointment.assignedEmployee?.id === employee.id;
+                      const qualityColor = matchQuality === "Excellent Match" ? "text-green-600" : matchQuality === "Good Match" ? "text-blue-600" : "text-yellow-600";
+                      const qualityBg    = matchQuality === "Excellent Match" ? "bg-green-50"   : matchQuality === "Good Match" ? "bg-blue-50"   : "bg-yellow-50";
+                      const barColor     = matchScore >= 90 ? "bg-green-500" : matchScore >= 70 ? "bg-blue-500" : "bg-yellow-500";
+
+                      return (
+                        <div
+                          key={employee.id}
+                          className={`border rounded-xl overflow-hidden ${isCurrentlyAssigned ? "border-blue-300 bg-blue-50" : "border-gray-100 bg-white"}`}
+                        >
+                          {/* top row */}
+                          <div className="p-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                                  <span className="text-xs font-bold text-indigo-600">
+                                    {employee.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                                  </span>
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-gray-900 text-sm">{employee.name}</p>
+                                  <p className="text-xs text-gray-500">{employee.role}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Star className={`w-4 h-4 ${matchScore >= 90 ? "text-green-500" : matchScore >= 70 ? "text-blue-500" : "text-yellow-500"}`} />
+                                <span className="text-sm font-bold text-gray-900">{matchScore}%</span>
+                              </div>
+                            </div>
+                            <div className="mt-2">
+                              <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${qualityBg} ${qualityColor}`}>
+                                {matchQuality}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* availability */}
+                          <div className={`mx-3 px-3 py-1.5 rounded-lg flex items-center gap-2 ${employee.isAvailable ? "bg-green-50" : "bg-red-50"}`}>
+                            {employee.isAvailable ? (
+                              <><CheckCircle2 className="w-4 h-4 text-green-500" /><span className="text-sm font-medium text-green-700">Available</span></>
+                            ) : (
+                              <><AlertCircle className="w-4 h-4 text-red-500" /><span className="text-sm font-medium text-red-700">Unavailable</span></>
+                            )}
+                          </div>
+
+                          {/* skills */}
+                          <div className="px-3 pt-3 pb-2">
+                            <p className="text-xs font-semibold text-gray-500 mb-1.5">Skills Match:</p>
+                            <p className="text-xs text-gray-500 mb-1">Has Required Skills:</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {matchedSkills.map((s) => (
+                                <span key={s} className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-700 rounded-full text-xs font-medium">
+                                  <CheckCircle2 className="w-3 h-3" />{s}
+                                </span>
+                              ))}
+                            </div>
+                            {missingSkills.length > 0 && (
+                              <>
+                                <p className="text-xs text-gray-500 mt-1.5 mb-1">Missing Skills:</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {missingSkills.map((s) => (
+                                    <span key={s} className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-50 text-red-600 rounded-full text-xs font-medium">
+                                      <AlertCircle className="w-3 h-3" />{s}
+                                    </span>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                          </div>
+
+                          {/* score bar */}
+                          <div className="px-3 pt-1 pb-2">
+                            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                              <div className={`h-full rounded-full transition-all duration-500 ${barColor}`} style={{ width: `${matchScore}%` }} />
+                            </div>
+                          </div>
+
+                          {/* action */}
+                          <div className="p-3 pt-1">
+                            {isCurrentlyAssigned ? (
+                              <button type="button" className="w-full py-2 bg-gray-200 text-gray-600 rounded-xl text-sm font-semibold cursor-default" disabled>
+                                Currently Assigned
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleAssign(matchingAppointment.id, employee.id)}
+                                disabled={!employee.isAvailable}
+                                className={`w-full py-2 rounded-xl text-sm font-semibold transition-colors ${employee.isAvailable ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
+                              >
+                                Assign to Appointment
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+
+                  {/* plain employee rows – no appointment selected */}
+                  {!matchingAppointment && allEmployees
+                    .filter((emp) => {
+                      if (!sidebarSearch) return true;
+                      const q = sidebarSearch.toLowerCase();
+                      return (
+                        emp.name.toLowerCase().includes(q) ||
+                        emp.role.toLowerCase().includes(q) ||
+                        emp.workerType.toLowerCase().includes(q) ||
+                        emp.skills.some((s) => s.toLowerCase().includes(q))
+                      );
+                    })
+                    .map((emp) => {
+                      const assignedCount = appointments.filter(
+                        (a) => a.assignedEmployee?.id === emp.id && a.status !== "Cancelled"
+                      ).length;
+
+                      return (
+                        <div key={emp.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                          <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                            <span className="text-xs font-bold text-indigo-600">
+                              {emp.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate">{emp.name}</p>
+                            <p className="text-xs text-gray-500">{emp.workerType}</p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-xs font-semibold text-slate-600">{assignedCount}</p>
+                            <p className="text-xs text-slate-400">shifts</p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  }
+                </div>
               </div>
             </aside>
           </div>
