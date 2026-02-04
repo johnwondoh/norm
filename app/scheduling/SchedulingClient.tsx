@@ -178,13 +178,18 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
   // Handlers
   // ---------------------------------------------------------------------------
   const handleCardClick = useCallback((appt: Appointment) => {
-    // attach candidates and open panel
+    // clicking the already-selected card closes the panel (toggle)
+    if (matchingAppointment?.id === appt.id) {
+      setMatchingAppointment(null);
+      return;
+    }
+    // otherwise open / swap to the new appointment's candidates
     const withCandidates: Appointment = {
       ...appt,
       candidateEmployees: computeCandidates(appt, allEmployees),
     };
     setMatchingAppointment(withCandidates);
-  }, [allEmployees]);
+  }, [allEmployees, matchingAppointment?.id]);
 
   const handleAssign = useCallback((appointmentId: string, employeeId: string) => {
     setAppointments((prev) =>
@@ -208,6 +213,10 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
       prev.map((a) =>
         a.id === appt.id ? { ...a, assignedEmployee: null, status: "Unassigned" as const } : a
       )
+    );
+    // keep the match panel in sync if the unassigned card is the one being matched
+    setMatchingAppointment((prev) =>
+      prev?.id === appt.id ? { ...prev, assignedEmployee: null, status: "Unassigned" as const } : prev
     );
   }, []);
 
@@ -355,6 +364,7 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
                         appointment={appt}
                         onClick={handleCardClick}
                         onUnassign={handleUnassign}
+                        isSelected={matchingAppointment?.id === appt.id}
                       />
                     ))}
                   </div>
@@ -362,62 +372,78 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
               ))}
             </div>
 
-            {/* RIGHT – quick employee search panel */}
+            {/* RIGHT – unified sidebar: employee list ↔ staff match */}
             <aside className="w-80 flex-shrink-0">
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sticky top-8">
-                <h3 className="text-sm font-bold text-slate-800 mb-3">Employees</h3>
-                <p className="text-xs text-slate-500 mb-4">Search and preview available staff</p>
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm sticky top-8" style={{ maxHeight: "calc(100vh - 64px)" }}>
 
-                {/* search */}
-                <div className="relative mb-4">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    value={employeeSearch}
-                    onChange={(e) => setEmployeeSearch(e.target.value)}
-                    placeholder="Search employees…"
-                    className="w-full pl-9 pr-4 h-10 bg-slate-50 border border-slate-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+                {/* ── VIEW A: Employee list (shown when no appointment is selected) ── */}
+                {!matchingAppointment && (
+                  <div className="flex flex-col h-full p-5">
+                    <h3 className="text-sm font-bold text-slate-800 mb-1">Employees</h3>
+                    <p className="text-xs text-slate-500 mb-4">Search and preview available staff</p>
 
-                {/* employee list */}
-                <div className="space-y-2">
-                  {allEmployees
-                    .filter((emp) => {
-                      if (!employeeSearch) return true;
-                      const q = employeeSearch.toLowerCase();
-                      return (
-                        emp.name.toLowerCase().includes(q) ||
-                        emp.role.toLowerCase().includes(q) ||
-                        emp.workerType.toLowerCase().includes(q) ||
-                        emp.skills.some((s) => s.toLowerCase().includes(q))
-                      );
-                    })
-                    .map((emp) => {
-                      // count how many active (non-cancelled) appointments this employee has
-                      const assignedCount = appointments.filter(
-                        (a) => a.assignedEmployee?.id === emp.id && a.status !== "Cancelled"
-                      ).length;
+                    {/* search */}
+                    <div className="relative mb-4">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type="text"
+                        value={employeeSearch}
+                        onChange={(e) => setEmployeeSearch(e.target.value)}
+                        placeholder="Search employees…"
+                        className="w-full pl-9 pr-4 h-10 bg-slate-50 border border-slate-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
 
-                      return (
-                        <div key={emp.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                          <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                            <span className="text-xs font-bold text-indigo-600">
-                              {emp.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-                            </span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate">{emp.name}</p>
-                            <p className="text-xs text-gray-500">{emp.workerType}</p>
-                          </div>
-                          <div className="text-right flex-shrink-0">
-                            <p className="text-xs font-semibold text-slate-600">{assignedCount}</p>
-                            <p className="text-xs text-slate-400">shifts</p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
+                    {/* employee list (scrollable) */}
+                    <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+                      {allEmployees
+                        .filter((emp) => {
+                          if (!employeeSearch) return true;
+                          const q = employeeSearch.toLowerCase();
+                          return (
+                            emp.name.toLowerCase().includes(q) ||
+                            emp.role.toLowerCase().includes(q) ||
+                            emp.workerType.toLowerCase().includes(q) ||
+                            emp.skills.some((s) => s.toLowerCase().includes(q))
+                          );
+                        })
+                        .map((emp) => {
+                          const assignedCount = appointments.filter(
+                            (a) => a.assignedEmployee?.id === emp.id && a.status !== "Cancelled"
+                          ).length;
+
+                          return (
+                            <div key={emp.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                              <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                                <span className="text-xs font-bold text-indigo-600">
+                                  {emp.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                                </span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-gray-900 truncate">{emp.name}</p>
+                                <p className="text-xs text-gray-500">{emp.workerType}</p>
+                              </div>
+                              <div className="text-right flex-shrink-0">
+                                <p className="text-xs font-semibold text-slate-600">{assignedCount}</p>
+                                <p className="text-xs text-slate-400">shifts</p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── VIEW B: Staff match (shown when an appointment is selected) ── */}
+                {matchingAppointment && (
+                  <div className="flex flex-col" style={{ maxHeight: "calc(100vh - 64px)" }}>
+                    <StaffMatchPanel
+                      appointment={matchingAppointment}
+                      onClose={() => setMatchingAppointment(null)}
+                      onAssign={handleAssign}
+                    />
+                  </div>
+                )}
               </div>
             </aside>
           </div>
@@ -433,12 +459,6 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
         </div>
       </main>
 
-      {/* ── Staff Match Panel (modal slide-out) ── */}
-      <StaffMatchPanel
-        appointment={matchingAppointment}
-        onClose={() => setMatchingAppointment(null)}
-        onAssign={handleAssign}
-      />
     </div>
   );
 }
