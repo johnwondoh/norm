@@ -341,7 +341,7 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
           {/* ── Two-column layout: appointment list + employee quick-search ── */}
           <div className="flex gap-6 mb-8 items-start">
             {/* LEFT – appointment cards grouped by date (scrollable) */}
-            <div className="flex-1 min-w-0 flex flex-col" style={{ maxHeight: "calc(100vh - 340px)" }}>
+            <div className="flex-1 min-w-0 flex flex-col" style={{ maxHeight: "calc(100vh - 260px)" }}>
 
               {/* count badge */}
               <div className="flex items-center justify-between mb-3">
@@ -387,12 +387,12 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
             </div>
 
             {/* RIGHT – unified sidebar: employee list ↔ staff match */}
-            <aside className="w-80 flex-shrink-0">
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm sticky top-8" style={{ maxHeight: "calc(100vh - 64px)" }}>
+            <aside className="w-80 flex-shrink-0 flex flex-col" style={{ maxHeight: "calc(100vh - 260px)" }}>
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden flex-1">
 
                 {/* ── VIEW A: Employee list (shown when no appointment is selected) ── */}
                 {!matchingAppointment && (
-                  <div className="flex flex-col h-full p-5">
+                  <div className="flex flex-col min-h-0 flex-1 p-5">
                     <h3 className="text-sm font-bold text-slate-800 mb-1">Employees</h3>
                     <p className="text-xs text-slate-500 mb-4">Search and preview available staff</p>
 
@@ -450,7 +450,7 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
 
                 {/* ── VIEW B: Staff match (shown when an appointment is selected) ── */}
                 {matchingAppointment && (
-                  <div className="flex flex-col" style={{ maxHeight: "calc(100vh - 64px)" }}>
+                  <div className="flex flex-col min-h-0 flex-1">
                     <StaffMatchPanel
                       appointment={matchingAppointment}
                       onClose={() => setMatchingAppointment(null)}
