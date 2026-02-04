@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import {
   AlertCircle,
+  ArrowLeft,
   CheckCircle2,
   Star,
   Users,
@@ -392,31 +393,50 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
             <aside className="w-80 flex-shrink-0 flex flex-col" style={{ height: "calc(100vh - 260px)" }}>
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden flex-1 min-h-0">
 
-                {/* ── sticky header: title + conditional participant banner ── */}
-                <div className="flex-shrink-0 p-4 pb-2">
-                  <h3 className="text-sm font-bold text-slate-800 mb-1">Staff</h3>
-
-                  {/* participant banner – only when an appointment is selected */}
-                  {matchingAppointment && (
-                    <div className="mt-2 flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                          <span className="text-xs font-bold text-white">
-                            {matchingAppointment.participant.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-                          </span>
-                        </div>
-                        <p className="text-sm font-semibold text-blue-900 truncate">{matchingAppointment.participant.name}</p>
-                      </div>
+                {/* ── header: blue block when selected, plain title when not ── */}
+                {matchingAppointment ? (
+                  <div className="bg-blue-600 text-white rounded-t-xl px-5 py-4 flex-shrink-0">
+                    {/* back arrow + title */}
+                    <div className="flex items-center gap-2 mb-3">
                       <button
                         type="button"
                         onClick={() => { setMatchingAppointment(null); setSidebarSearch(""); }}
-                        className="p-0.5 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                        className="p-1 hover:bg-blue-500 rounded-lg transition-colors"
                       >
-                        <X className="w-3.5 h-3.5 text-blue-500" />
+                        <ArrowLeft className="w-4 h-4 text-white" />
                       </button>
+                      <div>
+                        <h3 className="text-sm font-bold text-white">Match Staff</h3>
+                        <p className="text-blue-200 text-xs">Find the best staff for this appointment</p>
+                      </div>
                     </div>
-                  )}
-                </div>
+
+                    {/* appointment summary card */}
+                    <div className="bg-blue-500/60 rounded-xl p-3 flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs font-bold text-white">
+                          {matchingAppointment.participant.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                        </span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-white text-sm truncate">{matchingAppointment.participant.name}</p>
+                        <p className="text-blue-200 text-xs">{matchingAppointment.workerType}</p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-blue-200 text-xs">
+                          {matchingAppointment.date.slice(5, 7)}/{matchingAppointment.date.slice(8, 10)}
+                        </p>
+                        <p className="text-white text-xs font-medium">
+                          {matchingAppointment.startTime} – {matchingAppointment.endTime}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex-shrink-0 p-4 pb-2">
+                    <h3 className="text-sm font-bold text-slate-800 mb-1">Staff</h3>
+                  </div>
+                )}
 
                 {/* ── search ── */}
                 <div className="flex-shrink-0 px-4 pb-3">
