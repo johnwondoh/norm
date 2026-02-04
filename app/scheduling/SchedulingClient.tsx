@@ -339,9 +339,22 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
           </div>
 
           {/* ── Two-column layout: appointment list + employee quick-search ── */}
-          <div className="flex gap-6 mb-8">
-            {/* LEFT – appointment cards grouped by date */}
-            <div className="flex-1 min-w-0">
+          <div className="flex gap-6 mb-8 items-start">
+            {/* LEFT – appointment cards grouped by date (scrollable) */}
+            <div className="flex-1 min-w-0 flex flex-col" style={{ maxHeight: "calc(100vh - 340px)" }}>
+
+              {/* count badge */}
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-semibold text-slate-500">
+                  Showing <span className="text-blue-600">{filteredAppointments.length}</span> appointment{filteredAppointments.length !== 1 ? "s" : ""}
+                  {filteredAppointments.length !== appointments.length && (
+                    <span className="text-slate-400"> of {appointments.length} total</span>
+                  )}
+                </span>
+              </div>
+
+              {/* scrollable card area */}
+              <div className="overflow-y-auto pr-1 flex-1">
               {groupedByDate.size === 0 && (
                 <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
                   <p className="text-slate-400 text-sm">No appointments match your filters.</p>
@@ -370,6 +383,7 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
                   </div>
                 </div>
               ))}
+              </div>
             </div>
 
             {/* RIGHT – unified sidebar: employee list ↔ staff match */}
