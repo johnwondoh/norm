@@ -68,7 +68,7 @@ export function StaffMatchPanel({ appointment, onClose, onAssign }: StaffMatchPa
   if (!appointment) return null;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       {/* ── blue header block ── */}
       <div className="bg-blue-600 text-white rounded-t-xl px-5 py-4 flex-shrink-0">
         {/* back arrow + title row */}
