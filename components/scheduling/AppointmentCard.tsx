@@ -38,6 +38,8 @@ export interface AppointmentCardProps {
   onUnassign?: (appointment: Appointment) => void;
   /** hide the participant block – useful inside a single-participant view */
   hideParticipant?: boolean;
+  /** true when this card is the one currently driving the match panel */
+  isSelected?: boolean;
   /** extra className for the outer wrapper */
   className?: string;
 }
@@ -50,6 +52,7 @@ export function AppointmentCard({
   onClick,
   onUnassign,
   hideParticipant = false,
+  isSelected = false,
   className = "",
 }: AppointmentCardProps) {
   const { participant, assignedEmployee, status, requiredSkills } = appointment;
@@ -57,8 +60,12 @@ export function AppointmentCard({
   return (
     <div
       className={`
-        bg-white rounded-xl border border-gray-100 border-l-4 ${statusBorder(status)}
-        shadow-sm hover:shadow-md transition-shadow cursor-pointer
+        rounded-xl border-l-4 ${statusBorder(status)}
+        transition-all duration-200 cursor-pointer
+        ${isSelected
+          ? "bg-blue-50 border border-blue-300 ring-2 ring-blue-400 shadow-md"
+          : "bg-white border border-gray-100 shadow-sm hover:shadow-md"
+        }
         ${className}
       `}
       onClick={() => onClick?.(appointment)}
