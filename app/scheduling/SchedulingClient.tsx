@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import {
   AlertCircle,
   ArrowLeft,
   CheckCircle2,
+  ChevronDown,
   Star,
   Users,
   DollarSign,
@@ -12,6 +13,46 @@ import {
   Search,
   X,
 } from "lucide-react";
+
+// ---------------------------------------------------------------------------
+// ScrollFadeIndicator – gradient + chevron that appears when there is more
+// content below, and disappears once the user scrolls to the bottom.
+// ---------------------------------------------------------------------------
+function ScrollFadeIndicator({ scrollRef }: { scrollRef: React.RefObject<HTMLDivElement | null> }) {
+  const [showIndicator, setShowIndicator] = useState(true);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const check = () => {
+      // show indicator when there is at least 4 px of content remaining
+      setShowIndicator(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
+    };
+
+    check(); // initial check
+    el.addEventListener("scroll", check, { passive: true });
+    // also re-check when the content size changes (e.g. filter / search)
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+
+    return () => {
+      el.removeEventListener("scroll", check);
+      ro.disconnect();
+    };
+  }, [scrollRef]);
+
+  if (!showIndicator) return null;
+
+  return (
+    <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none flex flex-col items-center justify-end pb-2">
+      {/* gradient fade */}
+      <div className="absolute inset-0 bg-gradient-to-t from-white via-white/70 to-transparent" />
+      {/* chevron */}
+      <ChevronDown className="relative z-10 w-4 h-4 text-slate-400 animate-bounce" />
+    </div>
+  );
+}
 import { Sidebar, SummaryMetricCard, FilterDropdown } from "@/components/crm";
 import type { FilterOption } from "@/components/crm";
 import { AppointmentCard, ScheduleCalendar } from "@/components/scheduling";
@@ -117,6 +158,10 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
 
   // ── sidebar search (shared: filters employees or candidates depending on selection) ──
   const [sidebarSearch, setSidebarSearch] = useState("");
+
+  // ── scroll refs for fade indicators ──
+  const scheduleScrollRef = useRef<HTMLDivElement | null>(null);
+  const staffScrollRef    = useRef<HTMLDivElement | null>(null);
 
   // ---------------------------------------------------------------------------
   // Derived / filtered data
@@ -357,35 +402,38 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
               </div>
 
               {/* scrollable card area */}
-              <div className="overflow-y-auto pr-1 flex-1">
-              {groupedByDate.size === 0 && (
-                <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-                  <p className="text-slate-400 text-sm">No appointments match your filters.</p>
-                </div>
-              )}
+              <div className="relative flex-1 min-h-0">
+                <div ref={scheduleScrollRef} className="overflow-y-auto pr-1 h-full">
+                  {groupedByDate.size === 0 && (
+                    <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+                      <p className="text-slate-400 text-sm">No appointments match your filters.</p>
+                    </div>
+                  )}
 
-              {Array.from(groupedByDate.entries()).map(([dateKey, dayAppointments]) => (
-                <div key={dateKey} className="mb-6">
-                  {/* day header */}
-                  <div className="flex items-center gap-3 mb-3">
-                    <h3 className="text-sm font-bold text-slate-800">{formatDateKey(dateKey)}</h3>
-                    <span className="text-xs text-slate-500">{dayAppointments.length} appointment{dayAppointments.length !== 1 ? "s" : ""}</span>
-                  </div>
+                  {Array.from(groupedByDate.entries()).map(([dateKey, dayAppointments]) => (
+                    <div key={dateKey} className="mb-6">
+                      {/* day header */}
+                      <div className="flex items-center gap-3 mb-3">
+                        <h3 className="text-sm font-bold text-slate-800">{formatDateKey(dateKey)}</h3>
+                        <span className="text-xs text-slate-500">{dayAppointments.length} appointment{dayAppointments.length !== 1 ? "s" : ""}</span>
+                      </div>
 
-                  {/* cards */}
-                  <div className="space-y-4">
-                    {dayAppointments.map((appt) => (
-                      <AppointmentCard
-                        key={appt.id}
-                        appointment={appt}
-                        onClick={handleCardClick}
-                        onUnassign={handleUnassign}
-                        isSelected={matchingAppointment?.id === appt.id}
-                      />
-                    ))}
-                  </div>
+                      {/* cards */}
+                      <div className="space-y-4">
+                        {dayAppointments.map((appt) => (
+                          <AppointmentCard
+                            key={appt.id}
+                            appointment={appt}
+                            onClick={handleCardClick}
+                            onUnassign={handleUnassign}
+                            isSelected={matchingAppointment?.id === appt.id}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+                <ScrollFadeIndicator scrollRef={scheduleScrollRef} />
               </div>
             </div>
 
@@ -454,7 +502,8 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
                 </div>
 
                 {/* ── scrollable list ── */}
-                <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-2 pr-5">
+                <div className="relative flex-1 min-h-0">
+                <div ref={staffScrollRef} className="overflow-y-auto px-4 pb-4 space-y-2 pr-5 h-full">
 
                   {/* candidate cards – appointment selected */}
                   {matchingAppointment && (() => {
@@ -621,6 +670,8 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
                       );
                     })
                   }
+                </div>
+                <ScrollFadeIndicator scrollRef={staffScrollRef} />
                 </div>
               </div>
             </aside>
