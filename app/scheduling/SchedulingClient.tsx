@@ -434,7 +434,8 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
                   </div>
                 ) : (
                   <div className="flex-shrink-0 p-4 pb-2">
-                    <h3 className="text-sm font-bold text-slate-800 mb-1">Staff</h3>
+                    <h3 className="text-sm font-bold text-slate-800 mb-1">Match Staff</h3>
+                    <p className="text-xs text-slate-500">Select a schedule to match with workers</p>
                   </div>
                 )}
 
