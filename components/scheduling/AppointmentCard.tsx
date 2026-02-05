@@ -1,21 +1,23 @@
 "use client";
 
-import { Clock, MapPin, CheckCircle2, AlertCircle, User } from "lucide-react";
-import type { Appointment } from "@/types/scheduling";
+import { Clock, MapPin, CheckCircle2, AlertCircle, User, FileText, AlertTriangle } from "lucide-react";
+import type { Appointment, DisplayStatus } from "@/types/scheduling";
+import { getDisplayStatus } from "@/types/scheduling";
 
 // ---------------------------------------------------------------------------
-// Colour helpers
+// Colour helpers – keyed on the effective *display* status
 // ---------------------------------------------------------------------------
-function statusBorder(status: Appointment["status"]): string {
+function statusBorder(status: DisplayStatus): string {
   switch (status) {
     case "Scheduled":  return "border-l-green-500";
     case "Unassigned": return "border-l-orange-400";
     case "Cancelled":  return "border-l-red-300";
     case "Completed":  return "border-l-gray-400";
+    case "No-show":    return "border-l-purple-400";
   }
 }
 
-function statusIcon(status: Appointment["status"]) {
+function statusIcon(status: DisplayStatus) {
   switch (status) {
     case "Scheduled":
     case "Completed":
@@ -24,16 +26,19 @@ function statusIcon(status: Appointment["status"]) {
       return <AlertCircle className="w-5 h-5 text-orange-400" />;
     case "Cancelled":
       return <AlertCircle className="w-5 h-5 text-red-400" />;
+    case "No-show":
+      return <AlertTriangle className="w-5 h-5 text-purple-400" />;
   }
 }
 
 /** tiny coloured dot for the worker-type tag */
-function workerDot(status: Appointment["status"]): string {
+function workerDot(status: DisplayStatus): string {
   switch (status) {
     case "Scheduled":  return "bg-green-400";
     case "Unassigned": return "bg-orange-400";
     case "Cancelled":  return "bg-red-300";
     case "Completed":  return "bg-gray-400";
+    case "No-show":    return "bg-purple-400";
   }
 }
 
@@ -69,12 +74,13 @@ export function AppointmentCard({
   isSelected = false,
   className = "",
 }: AppointmentCardProps) {
-  const { participant, assignedEmployee, status, requiredSkills } = appointment;
+  const { participant, assignedEmployee, requiredSkills } = appointment;
+  const displayStatus = getDisplayStatus(appointment);
 
   return (
     <div
       className={`
-        rounded-xl border-l-4 ${statusBorder(status)}
+        rounded-xl border-l-4 ${statusBorder(displayStatus)}
         transition-all duration-200 cursor-pointer
         ${isSelected
           ? "bg-blue-50 border border-blue-300 ring-2 ring-blue-400 shadow-md"
@@ -94,19 +100,23 @@ export function AppointmentCard({
           )}
           <div className="min-w-0">
             <p className="font-semibold text-gray-900 text-sm truncate">
-              {hideParticipant ? participant.supportCategory : participant.name}
+              {hideParticipant
+                ? participant.supportCategory
+                : participant.preferredName
+                  ? `${participant.preferredName} (${participant.name})`
+                  : participant.name}
             </p>
             <p className="text-xs text-gray-500">{participant.ndisNumber}</p>
           </div>
         </div>
-        {statusIcon(status)}
+        {statusIcon(displayStatus)}
       </div>
 
       {/* ── meta row: type · time · duration · location · rate ── */}
       <div className="px-4 pb-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
         {/* worker-type chip */}
         <span className="inline-flex items-center gap-1.5">
-          <span className={`w-2 h-2 rounded-full ${workerDot(status)}`} />
+          <span className={`w-2 h-2 rounded-full ${workerDot(displayStatus)}`} />
           <span className="text-xs font-semibold text-gray-600">{appointment.workerType}</span>
         </span>
 
@@ -124,9 +134,29 @@ export function AppointmentCard({
           {appointment.location}
         </span>
 
-        {/* rate – pushed to the right when space allows */}
-        <span className="ml-auto text-xs font-bold text-gray-700">${appointment.rate}</span>
+        {/* rate / amount – pushed to the right when space allows */}
+        <span className="ml-auto text-xs font-bold text-gray-700">
+          {appointment.amountCharged != null
+            ? `$${appointment.amountCharged.toFixed(2)}`
+            : `$${appointment.rate}/hr`}
+        </span>
       </div>
+
+      {/* ── budget & hours row (when available) ── */}
+      {(appointment.budgetCategory || appointment.hoursDelivered != null) && (
+        <div className="px-4 pb-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+          {appointment.budgetCategory && (
+            <span className="text-xs text-gray-500">
+              Budget: <span className="font-semibold text-gray-700">{appointment.budgetCategory}</span>
+            </span>
+          )}
+          {appointment.hoursDelivered != null && (
+            <span className="text-xs text-gray-500">
+              Hours: <span className="font-semibold text-gray-700">{appointment.hoursDelivered}h</span>
+            </span>
+          )}
+        </div>
+      )}
 
       {/* ── skills row ── */}
       {requiredSkills.length > 0 && (
@@ -139,6 +169,50 @@ export function AppointmentCard({
             >
               {skill}
             </span>
+          ))}
+        </div>
+      )}
+
+      {/* ── cancellation reason ── */}
+      {appointment.cancellationReason && (
+        <div className="mx-4 mb-2 px-3 py-1.5 bg-red-50 border border-red-100 rounded-lg flex items-start gap-2">
+          <AlertCircle className="w-3.5 h-3.5 text-red-400 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-red-600">{appointment.cancellationReason}</p>
+        </div>
+      )}
+
+      {/* ── inline note ── */}
+      {appointment.notes && (
+        <div className="mx-4 mb-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg flex items-start gap-2">
+          <FileText className="w-3.5 h-3.5 text-slate-400 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-slate-600">{appointment.notes}</p>
+        </div>
+      )}
+
+      {/* ── service notes (from service_notes table) ── */}
+      {appointment.serviceNotes && appointment.serviceNotes.length > 0 && (
+        <div className="mx-4 mb-2 space-y-1">
+          {appointment.serviceNotes.map((sn) => (
+            <div
+              key={sn.id}
+              className={`px-3 py-1.5 rounded-lg flex items-start gap-2 border ${
+                sn.isSensitive
+                  ? "bg-amber-50 border-amber-200"
+                  : "bg-blue-50 border-blue-100"
+              }`}
+            >
+              <AlertTriangle className={`w-3 h-3 mt-0.5 flex-shrink-0 ${sn.isSensitive ? "text-amber-500" : "text-blue-400"}`} />
+              <div className="min-w-0">
+                <p className={`text-xs ${sn.isSensitive ? "text-amber-700 font-semibold" : "text-blue-700"}`}>
+                  {sn.isSensitive && <span className="mr-1">[Sensitive]</span>}
+                  {sn.note}
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {sn.noteType && <span className="capitalize mr-1">{sn.noteType} ·</span>}
+                  {sn.createdByName}
+                </p>
+              </div>
+            </div>
           ))}
         </div>
       )}

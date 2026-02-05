@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useMemo, useCallback } from "react";
-import { AlertCircle, CheckCircle2, Users, DollarSign, Plus } from "lucide-react";
+import { AlertCircle, CheckCircle2, Users, DollarSign, Plus, Clock, AlertTriangle } from "lucide-react";
 
 import {
   Sidebar,
@@ -16,16 +16,11 @@ import {
 import type { FilterOption } from "@/components/crm";
 import { AppointmentCard, ScheduleCalendar } from "@/components/scheduling";
 import type { Appointment, Employee, StaffCandidate } from "@/types/scheduling";
+import { getDisplayStatus } from "@/types/scheduling";
 
 // ---------------------------------------------------------------------------
 // Filter option sets
 // ---------------------------------------------------------------------------
-const assignmentFilterOptions: FilterOption[] = [
-  { label: "All Appointments", value: "all" },
-  { label: "Assigned",         value: "assigned" },
-  { label: "Unassigned",       value: "unassigned" },
-];
-
 const workerTypeOptions: FilterOption[] = [
   { label: "All Worker Types",  value: "all" },
   { label: "Support Worker",    value: "Support Worker" },
@@ -34,6 +29,15 @@ const workerTypeOptions: FilterOption[] = [
   { label: "Care Coordinator",  value: "Care Coordinator" },
   { label: "Allied Health",     value: "Allied Health" },
   { label: "Community Care",    value: "Community Care" },
+];
+
+const statusFilterOptions: FilterOption[] = [
+  { label: "All Statuses",  value: "all" },
+  { label: "Scheduled",    value: "Scheduled" },
+  { label: "Unassigned",   value: "Unassigned" },
+  { label: "Completed",    value: "Completed" },
+  { label: "Cancelled",    value: "Cancelled" },
+  { label: "No-show",      value: "No-show" },
 ];
 
 const dateFilterOptions: FilterOption[] = [
@@ -111,7 +115,7 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
 
   // ── filters ──
   const [participantSearch, setParticipantSearch] = useState("");
-  const [assignmentFilter, setAssignmentFilter] = useState("all");
+  const [statusFilter, setStatusFilter]         = useState("all");
   const [workerTypeFilter, setWorkerTypeFilter] = useState("all");
   const [dateFilter, setDateFilter]             = useState("all");
 
@@ -134,13 +138,15 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
         const q = participantSearch.toLowerCase();
         if (
           !a.participant.name.toLowerCase().includes(q) &&
+          !(a.participant.preferredName?.toLowerCase().includes(q) ?? false) &&
           !a.participant.ndisNumber.toLowerCase().includes(q) &&
-          !a.participant.supportCategory.toLowerCase().includes(q)
+          !a.participant.supportCategory.toLowerCase().includes(q) &&
+          !(a.notes?.toLowerCase().includes(q) ?? false)
         )
           return false;
       }
-      if (assignmentFilter === "assigned"   && !a.assignedEmployee) return false;
-      if (assignmentFilter === "unassigned" && a.assignedEmployee)  return false;
+      // status / assignment filter uses the derived display status
+      if (statusFilter !== "all" && getDisplayStatus(a) !== statusFilter) return false;
       if (workerTypeFilter !== "all" && a.workerType !== workerTypeFilter) return false;
       if (dateFilter === "today" && a.date !== todayKey()) return false;
       if (dateFilter === "week") {
@@ -153,7 +159,7 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
       }
       return true;
     });
-  }, [appointments, participantSearch, assignmentFilter, workerTypeFilter, dateFilter]);
+  }, [appointments, participantSearch, statusFilter, workerTypeFilter, dateFilter]);
 
   const groupedByDate = useMemo(() => {
     const map = new Map<string, Appointment[]>();
@@ -167,13 +173,17 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
   }, [filteredAppointments]);
 
   const metrics = useMemo(() => {
-    const unassigned = appointments.filter((a) => a.status === "Unassigned").length;
-    const assigned   = appointments.filter((a) => a.status === "Scheduled").length;
-    const clients    = new Set(appointments.map((a) => a.participant.id)).size;
-    const revenue    = appointments
-      .filter((a) => a.status !== "Cancelled")
-      .reduce((s, a) => s + a.rate, 0);
-    return { unassigned, assigned, clients, revenue };
+    const unassigned        = appointments.filter((a) => getDisplayStatus(a) === "Unassigned").length;
+    const assigned          = appointments.filter((a) => getDisplayStatus(a) === "Scheduled").length;
+    const clients           = new Set(appointments.map((a) => a.participant.id)).size;
+    const revenue           = appointments
+      .filter((a) => a.status !== "Cancelled" && a.status !== "No-show")
+      .reduce((s, a) => s + (a.amountCharged ?? a.rate), 0);
+    const totalHoursDelivered = appointments
+      .filter((a) => a.status === "Completed" && a.hoursDelivered != null)
+      .reduce((s, a) => s + (a.hoursDelivered ?? 0), 0);
+    const noShowCount       = appointments.filter((a) => a.status === "No-show").length;
+    return { unassigned, assigned, clients, revenue, totalHoursDelivered, noShowCount };
   }, [appointments]);
 
   // filtered candidate list (derived from matchingAppointment + sidebarSearch)
@@ -227,24 +237,36 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
         if (a.id !== appointmentId) return a;
         const emp = allEmployees.find((e) => e.id === employeeId);
         if (!emp) return a;
-        return { ...a, assignedEmployee: emp, status: "Scheduled" as const };
+        return {
+          ...a,
+          assignedEmployee: emp,
+          staffMemberId: emp.id,
+          staffMemberName: emp.name,
+          status: "Scheduled" as const,
+        };
       })
     );
     setMatchingAppointment((prev) => {
       if (!prev || prev.id !== appointmentId) return prev;
       const emp = allEmployees.find((e) => e.id === employeeId);
-      return emp ? { ...prev, assignedEmployee: emp, status: "Scheduled" as const } : prev;
+      return emp
+        ? { ...prev, assignedEmployee: emp, staffMemberId: emp.id, staffMemberName: emp.name, status: "Scheduled" as const }
+        : prev;
     });
   }, [allEmployees]);
 
   const handleUnassign = useCallback((appt: Appointment) => {
     setAppointments((prev) =>
       prev.map((a) =>
-        a.id === appt.id ? { ...a, assignedEmployee: null, status: "Unassigned" as const } : a
+        a.id === appt.id
+          ? { ...a, assignedEmployee: null, staffMemberId: null, staffMemberName: null, status: "Scheduled" as const }
+          : a
       )
     );
     setMatchingAppointment((prev) =>
-      prev?.id === appt.id ? { ...prev, assignedEmployee: null, status: "Unassigned" as const } : prev
+      prev?.id === appt.id
+        ? { ...prev, assignedEmployee: null, staffMemberId: null, staffMemberName: null, status: "Scheduled" as const }
+        : prev
     );
   }, []);
 
@@ -279,11 +301,13 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
           </div>
 
           {/* ── Summary Metrics ── */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <SummaryMetricCard title="Unassigned Appointments" value={metrics.unassigned}  icon={AlertCircle}  iconColor="text-orange-600" iconBgColor="bg-orange-100" />
-            <SummaryMetricCard title="Assigned Appointments"   value={metrics.assigned}    icon={CheckCircle2} iconColor="text-green-600"  iconBgColor="bg-green-100"  />
-            <SummaryMetricCard title="Active Clients"          value={metrics.clients}     icon={Users}        iconColor="text-blue-600"  iconBgColor="bg-blue-100"   />
-            <SummaryMetricCard title="Total Revenue"           value={`$${metrics.revenue.toFixed(2)}`} icon={DollarSign} iconColor="text-purple-600" iconBgColor="bg-purple-100" />
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+            <SummaryMetricCard title="Unassigned"        value={metrics.unassigned}            icon={AlertCircle}   iconColor="text-orange-600"  iconBgColor="bg-orange-100"  />
+            <SummaryMetricCard title="Scheduled"         value={metrics.assigned}              icon={CheckCircle2}  iconColor="text-green-600"   iconBgColor="bg-green-100"   />
+            <SummaryMetricCard title="Active Clients"    value={metrics.clients}               icon={Users}         iconColor="text-blue-600"    iconBgColor="bg-blue-100"    />
+            <SummaryMetricCard title="Total Revenue"     value={`$${metrics.revenue.toFixed(2)}`}  icon={DollarSign}    iconColor="text-purple-600"  iconBgColor="bg-purple-100"  />
+            <SummaryMetricCard title="Hours Delivered"   value={`${metrics.totalHoursDelivered}h`} icon={Clock}         iconColor="text-teal-600"    iconBgColor="bg-teal-100"    />
+            <SummaryMetricCard title="No-shows"          value={metrics.noShowCount}           icon={AlertTriangle} iconColor="text-rose-600"    iconBgColor="bg-rose-100"    />
           </div>
 
           {/* ── Filters bar ── */}
@@ -297,7 +321,7 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
                 onClear={() => setParticipantSearch("")}
               />
               <div className="flex flex-wrap gap-3">
-                <FilterDropdown label="All Appointments" options={assignmentFilterOptions} value={assignmentFilter} onChange={setAssignmentFilter} showIcon />
+                <FilterDropdown label="All Statuses"    options={statusFilterOptions}     value={statusFilter}     onChange={setStatusFilter} showIcon />
                 <FilterDropdown label="All Worker Types" options={workerTypeOptions}      value={workerTypeFilter} onChange={setWorkerTypeFilter} />
                 <FilterDropdown label="All Dates"        options={dateFilterOptions}      value={dateFilter}       onChange={setDateFilter} />
               </div>

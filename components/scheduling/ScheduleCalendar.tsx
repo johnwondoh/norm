@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { Appointment } from "@/types/scheduling";
+import type { Appointment, DisplayStatus } from "@/types/scheduling";
+import { getDisplayStatus } from "@/types/scheduling";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -50,12 +51,13 @@ function toDateKey(d: Date): string {
 }
 
 /** colour classes + left accent for appointment status */
-function blockColors(status: Appointment["status"]): { bg: string; border: string; text: string; accent: string } {
+function blockColors(status: DisplayStatus): { bg: string; border: string; text: string; accent: string } {
   switch (status) {
-    case "Scheduled":  return { bg: "bg-green-50",  border: "border-green-200",  text: "text-green-800",  accent: "bg-green-500" };
-    case "Unassigned": return { bg: "bg-amber-50",  border: "border-amber-200",  text: "text-amber-800",  accent: "bg-amber-400" };
-    case "Cancelled":  return { bg: "bg-red-50",    border: "border-red-200",    text: "text-red-600",    accent: "bg-red-400" };
-    case "Completed":  return { bg: "bg-gray-50",   border: "border-gray-200",   text: "text-gray-600",   accent: "bg-gray-400" };
+    case "Scheduled":  return { bg: "bg-green-50",   border: "border-green-200",   text: "text-green-800",   accent: "bg-green-500" };
+    case "Unassigned": return { bg: "bg-amber-50",   border: "border-amber-200",   text: "text-amber-800",   accent: "bg-amber-400" };
+    case "Cancelled":  return { bg: "bg-red-50",     border: "border-red-200",     text: "text-red-600",     accent: "bg-red-400" };
+    case "Completed":  return { bg: "bg-gray-50",    border: "border-gray-200",    text: "text-gray-600",    accent: "bg-gray-400" };
+    case "No-show":    return { bg: "bg-purple-50",  border: "border-purple-200",  text: "text-purple-700",  accent: "bg-purple-400" };
   }
 }
 
@@ -141,7 +143,7 @@ export function ScheduleCalendar({ appointments, onAppointmentClick }: ScheduleC
         </div>
 
         {/* legend */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-sm bg-green-400" />
             <span className="text-xs text-gray-500">Scheduled</span>
@@ -151,8 +153,16 @@ export function ScheduleCalendar({ appointments, onAppointmentClick }: ScheduleC
             <span className="text-xs text-gray-500">Unassigned</span>
           </div>
           <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-sm bg-gray-400" />
+            <span className="text-xs text-gray-500">Completed</span>
+          </div>
+          <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-sm bg-red-400" />
             <span className="text-xs text-gray-500">Cancelled</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-sm bg-purple-400" />
+            <span className="text-xs text-gray-500">No-show</span>
           </div>
         </div>
       </div>
@@ -260,7 +270,7 @@ export function ScheduleCalendar({ appointments, onAppointmentClick }: ScheduleC
                   const endMins   = segment === "start" ? END_HOUR * 60    : toMinutes(appt.endTime);
                   const topPx     = minutesToPx(startMins);
                   const heightPx  = minutesToPx(endMins) - topPx;
-                  const { bg, border, text, accent } = blockColors(appt.status);
+                  const { bg, border, text, accent } = blockColors(getDisplayStatus(appt));
 
                   // rounded corners: top on full/start, bottom on full/end
                   const roundTop    = segment !== "end";
