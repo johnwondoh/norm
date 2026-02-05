@@ -389,7 +389,7 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
           {/* ── Two-column layout: appointment list + employee quick-search ── */}
           <div className="flex gap-6 mb-8 items-start">
             {/* LEFT – appointment cards grouped by date (scrollable) */}
-            <div className="flex-1 min-w-0 flex flex-col" style={{ maxHeight: "calc(100vh - 260px)" }}>
+            <div className="flex-1 min-w-0 flex flex-col" style={{ height: "calc(100vh - 260px)" }}>
 
               {/* count badge */}
               <div className="flex items-center justify-between mb-3">
