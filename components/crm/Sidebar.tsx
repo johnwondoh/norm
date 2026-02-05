@@ -22,6 +22,7 @@ import {
   ChevronRight,
   ChevronDown,
   LucideIcon,
+  TriangleAlert
 } from "lucide-react";
 
 export interface NavItem {
@@ -69,6 +70,15 @@ const defaultSections: NavSection[] = [
       { label: "Care Plans", href: "/care-plans", icon: FileText },
       { label: "Progress Notes", href: "/progress-notes", icon: ClipboardList },
       { label: "Documents", href: "/documents", icon: FolderOpen },
+      { 
+        label: "Incidents & Feedback",
+        href: '/incidents-and-feedbacl',
+        icon: TriangleAlert,
+        children: [
+          {label: "Incident Reports", href: '/incidents'},
+          {label: "Feedback & Complains", href: '/feedback'},
+        ]
+      },
       { label: "Compliance & Audits", href: "/compliance", icon: Shield },
     ],
   },
