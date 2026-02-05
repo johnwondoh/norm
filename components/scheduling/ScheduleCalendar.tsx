@@ -190,8 +190,8 @@ export function ScheduleCalendar({ appointments, onAppointmentClick }: ScheduleC
           })}
         </div>
 
-        {/* time grid rows */}
-        <div className="flex">
+        {/* time grid rows – pt-2 so the first label isn't clipped by the sticky header */}
+        <div className="flex pt-2">
           {/* time labels column */}
           <div className="w-16 flex-shrink-0 border-r border-gray-100">
             {Array.from({ length: TOTAL_SLOTS }, (_, i) => {
@@ -203,7 +203,7 @@ export function ScheduleCalendar({ appointments, onAppointmentClick }: ScheduleC
               return (
                 <div key={i} className={`h-7 flex items-start justify-end pr-2 border-b border-gray-50 ${night ? "bg-slate-50" : ""}`}>
                   {showLabel && (
-                    <span className={`text-xs -mt-2.5 ${night ? "text-slate-400" : "text-gray-400"}`}>
+                    <span className={`text-xs ${i === 0 ? "" : "-mt-2.5"} ${night ? "text-slate-400" : "text-gray-400"}`}>
                       {h === 0 ? "12 AM" : h < 12 ? `${h} AM` : h === 12 ? "12 PM" : `${h - 12} PM`}
                     </span>
                   )}
