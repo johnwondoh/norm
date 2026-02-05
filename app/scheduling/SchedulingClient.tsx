@@ -440,7 +440,7 @@ export default function SchedulingClient({ initialAppointments, allEmployees }: 
                 )}
 
                 {/* ── search ── */}
-                <div className="flex-shrink-0 px-4 pb-3">
+                <div className="flex-shrink-0 px-4 pt-3 pb-3">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
