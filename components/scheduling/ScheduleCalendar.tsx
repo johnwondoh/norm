@@ -21,9 +21,9 @@ function getWeekStart(date: Date): Date {
 /** "Mon", "Tue", … */
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-/** visible hours range – 7 AM to 20 (8 PM) */
-const START_HOUR = 7;
-const END_HOUR   = 20;
+/** visible hours range – full 24-hour day */
+const START_HOUR = 0;
+const END_HOUR   = 24;
 const SLOT_MINS  = 30; // each row = 30 min
 
 /** number of half-hour rows visible */
