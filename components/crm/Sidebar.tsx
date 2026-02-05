@@ -13,7 +13,6 @@ import {
   ClipboardList,
   FolderOpen,
   Shield,
-  AlertTriangle,
   UserCog,
   DollarSign,
   BarChart3,
@@ -71,26 +70,16 @@ const defaultSections: NavSection[] = [
       { label: "Care Plans", href: "/care-plans", icon: FileText },
       { label: "Progress Notes", href: "/progress-notes", icon: ClipboardList },
       { label: "Documents", href: "/documents", icon: FolderOpen },
-      { 
+      {
         label: "Incidents & Feedback",
-        href: '/incidents-and-feedbacl',
+        href: "/incident-reports",
         icon: TriangleAlert,
         children: [
-          {label: "Incident Reports", href: '/incidents'},
-          {label: "Feedback & Complains", href: '/feedback'},
-        ]
+          { label: "Incident Reports",    href: "/incident-reports" },
+          { label: "Feedback & Complaints", href: "/feedback" },
+        ],
       },
       { label: "Compliance & Audits", href: "/compliance", icon: Shield },
-    ],
-  },
-  {
-    title: "INCIDENTS & FEEDBACK",
-    items: [
-      {
-        label: "Incident Reports",
-        href: "/incident-reports",
-        icon: AlertTriangle,
-      },
     ],
   },
   {
