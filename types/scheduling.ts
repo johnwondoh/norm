@@ -47,12 +47,14 @@ export interface Appointment {
   participant: Participant;
   /** required worker category for the booking */
   workerType: WorkerType;
-  /** ISO date string (date portion only) */
+  /** ISO date string – the date the appointment starts on */
   date: string;
   /** "HH:MM" */
   startTime: string;
   /** "HH:MM" */
   endTime: string;
+  /** ISO date string – the date the appointment ends on. Omit for same-day; set when the shift crosses midnight. */
+  endDate?: string;
   /** computed duration in minutes */
   durationMinutes: number;
   /** location description */

@@ -86,12 +86,18 @@ export function ScheduleCalendar({ appointments, onAppointmentClick }: ScheduleC
     });
   }, [weekStart]);
 
-  // group appointments by date key
+  // group appointments by date key – overnight shifts appear on both days
+  // segment: "full" = same-day, "start" = first night of overnight, "end" = morning continuation
   const appointmentsByDay = useMemo(() => {
-    const map: Record<string, Appointment[]> = {};
+    const map: Record<string, { appt: Appointment; segment: "full" | "start" | "end" }[]> = {};
     for (const appt of appointments) {
-      const key = appt.date;
-      (map[key] ??= []).push(appt);
+      const isOvernight = appt.endDate && appt.endDate !== appt.date;
+      if (isOvernight) {
+        (map[appt.date]      ??= []).push({ appt, segment: "start" });
+        (map[appt.endDate!]  ??= []).push({ appt, segment: "end"   });
+      } else {
+        (map[appt.date] ??= []).push({ appt, segment: "full" });
+      }
     }
     return map;
   }, [appointments]);
@@ -246,21 +252,32 @@ export function ScheduleCalendar({ appointments, onAppointmentClick }: ScheduleC
                 })}
 
                 {/* appointment blocks – absolutely positioned */}
-                {dayAppointments.map((appt) => {
-                  const startMins = toMinutes(appt.startTime);
-                  const endMins   = toMinutes(appt.endTime);
+                {dayAppointments.map(({ appt, segment }) => {
+                  // segment: "full" → startTime…endTime
+                  //          "start" → startTime…midnight
+                  //          "end"   → midnight…endTime
+                  const startMins = segment === "end"   ? 0                : toMinutes(appt.startTime);
+                  const endMins   = segment === "start" ? END_HOUR * 60    : toMinutes(appt.endTime);
                   const topPx     = minutesToPx(startMins);
                   const heightPx  = minutesToPx(endMins) - topPx;
                   const { bg, border, text, accent } = blockColors(appt.status);
 
+                  // rounded corners: top on full/start, bottom on full/end
+                  const roundTop    = segment !== "end";
+                  const roundBottom = segment !== "start";
+                  const roundClass  = [roundTop ? "rounded-tl-lg rounded-tr-lg" : "rounded-tl-none rounded-tr-none", roundBottom ? "rounded-bl-lg rounded-br-lg" : "rounded-bl-none rounded-br-none"].join(" ");
+
+                  // border: hide bottom on start segment, hide top on end segment so they join seamlessly
+                  const borderClass = segment === "start" ? "border-b-0" : segment === "end" ? "border-t-0" : "";
+
                   return (
                     <div
-                      key={appt.id}
+                      key={`${appt.id}-${segment}`}
                       onClick={() => onAppointmentClick?.(appt)}
                       className={`
-                        absolute left-1 right-1 rounded-lg border overflow-hidden
+                        absolute left-1 right-1 border overflow-hidden
                         cursor-pointer hover:shadow-md transition-shadow flex
-                        ${bg} ${border} ${text}
+                        ${roundClass} ${borderClass} ${bg} ${border} ${text}
                       `}
                       style={{ top: topPx, height: Math.max(heightPx, 24) }}
                     >
@@ -268,7 +285,10 @@ export function ScheduleCalendar({ appointments, onAppointmentClick }: ScheduleC
                       <div className={`w-1 flex-shrink-0 ${accent}`} />
 
                       <div className="px-2 pt-1 truncate flex-1 min-w-0">
-                        <p className="text-xs font-bold truncate">{appt.participant.name}</p>
+                        <p className="text-xs font-bold truncate">
+                          {appt.participant.name}
+                          {segment === "end" && <span className="opacity-60 font-normal ml-1">(cont.)</span>}
+                        </p>
                         {heightPx > 48 && (
                           <p className="text-xs truncate opacity-70">{appt.workerType}</p>
                         )}

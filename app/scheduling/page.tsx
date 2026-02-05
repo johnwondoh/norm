@@ -209,6 +209,23 @@ const appointments: Appointment[] = [
     status: "Unassigned",
     assignedEmployee: null,
   },
+  // ── overnight night shift: Tuesday 11 PM → Wednesday 7 AM ──
+  {
+    id: "appt-night-1",
+    participant: { id: "p-7", name: "Daniel Wright", ndisNumber: "NDIS-2024-007", supportCategory: "Assistance with Daily Life" },
+    workerType: "Nurse",
+    date: getDateOffset(-2),          // Tuesday
+    startTime: "23:00",
+    endTime: "07:00",
+    endDate: getDateOffset(-1),       // Wednesday
+    durationMinutes: 480,
+    location: "Aged Care Facility – Manly",
+    requiredSkills: ["Nursing Care", "Medication Management"],
+    budgetCategory: "Core Supports",
+    rate: 140,
+    status: "Scheduled",
+    assignedEmployee: employees[2],   // Michael Chen
+  },
   // ── +4 days ──
   {
     id: "appt-10",
