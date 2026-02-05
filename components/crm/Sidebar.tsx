@@ -13,6 +13,7 @@ import {
   ClipboardList,
   FolderOpen,
   Shield,
+  AlertTriangle,
   UserCog,
   DollarSign,
   BarChart3,
@@ -80,6 +81,16 @@ const defaultSections: NavSection[] = [
         ]
       },
       { label: "Compliance & Audits", href: "/compliance", icon: Shield },
+    ],
+  },
+  {
+    title: "INCIDENTS & FEEDBACK",
+    items: [
+      {
+        label: "Incident Reports",
+        href: "/incident-reports",
+        icon: AlertTriangle,
+      },
     ],
   },
   {
