@@ -48,6 +48,7 @@ export type Database = {
           created_at: string
           id: string
           is_current: boolean | null
+          organisation_id: string
           participant_id: string
           postcode: string
           state: string
@@ -62,6 +63,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_current?: boolean | null
+          organisation_id: string
           participant_id: string
           postcode: string
           state: string
@@ -76,6 +78,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_current?: boolean | null
+          organisation_id?: string
           participant_id?: string
           postcode?: string
           state?: string
@@ -83,6 +86,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "addresses_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "addresses_participant_id_fkey"
             columns: ["participant_id"]
@@ -113,6 +123,7 @@ export type Database = {
           committed_amount: number | null
           created_at: string
           id: string
+          organisation_id: string
           plan_id: string
           spent_amount: number | null
           subcategory: string | null
@@ -126,6 +137,7 @@ export type Database = {
           committed_amount?: number | null
           created_at?: string
           id?: string
+          organisation_id: string
           plan_id: string
           spent_amount?: number | null
           subcategory?: string | null
@@ -139,6 +151,7 @@ export type Database = {
           committed_amount?: number | null
           created_at?: string
           id?: string
+          organisation_id?: string
           plan_id?: string
           spent_amount?: number | null
           subcategory?: string | null
@@ -147,6 +160,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "budget_categories_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "budget_categories_plan_id_fkey"
             columns: ["plan_id"]
@@ -173,6 +193,7 @@ export type Database = {
           consent_type: string
           created_at: string
           id: string
+          organisation_id: string
           participant_id: string
           updated_at: string
           withdrawn_date: string | null
@@ -186,6 +207,7 @@ export type Database = {
           consent_type: string
           created_at?: string
           id?: string
+          organisation_id: string
           participant_id: string
           updated_at?: string
           withdrawn_date?: string | null
@@ -199,11 +221,19 @@ export type Database = {
           consent_type?: string
           created_at?: string
           id?: string
+          organisation_id?: string
           participant_id?: string
           updated_at?: string
           withdrawn_date?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "consents_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "consents_participant_id_fkey"
             columns: ["participant_id"]
@@ -233,6 +263,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          organisation_id: string
           participant_id: string
           phone: string
           priority_order: number | null
@@ -244,6 +275,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          organisation_id: string
           participant_id: string
           phone: string
           priority_order?: number | null
@@ -255,6 +287,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          organisation_id?: string
           participant_id?: string
           phone?: string
           priority_order?: number | null
@@ -262,6 +295,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "emergency_contacts_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "emergency_contacts_participant_id_fkey"
             columns: ["participant_id"]
@@ -342,6 +382,7 @@ export type Database = {
           id: string
           is_primary: boolean | null
           last_name: string
+          organisation_id: string
           participant_id: string
           phone: string
           relationship: string
@@ -355,6 +396,7 @@ export type Database = {
           id?: string
           is_primary?: boolean | null
           last_name: string
+          organisation_id: string
           participant_id: string
           phone: string
           relationship: string
@@ -368,12 +410,20 @@ export type Database = {
           id?: string
           is_primary?: boolean | null
           last_name?: string
+          organisation_id?: string
           participant_id?: string
           phone?: string
           relationship?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "guardians_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "guardians_participant_id_fkey"
             columns: ["participant_id"]
@@ -411,6 +461,7 @@ export type Database = {
           incident_date: string
           incident_time: string | null
           incident_type: string
+          organisation_id: string
           participant_id: string
           reported_to_guardian: boolean | null
           reported_to_guardian_date: string | null
@@ -434,6 +485,7 @@ export type Database = {
           incident_date: string
           incident_time?: string | null
           incident_type: string
+          organisation_id: string
           participant_id: string
           reported_to_guardian?: boolean | null
           reported_to_guardian_date?: string | null
@@ -457,6 +509,7 @@ export type Database = {
           incident_date?: string
           incident_time?: string | null
           incident_type?: string
+          organisation_id?: string
           participant_id?: string
           reported_to_guardian?: boolean | null
           reported_to_guardian_date?: string | null
@@ -473,6 +526,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "service_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_reports_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
             referencedColumns: ["id"]
           },
           {
@@ -513,6 +573,7 @@ export type Database = {
           mobility_needs: string | null
           ndis_health_care_card: string | null
           notes: string | null
+          organisation_id: string
           participant_id: string
           primary_diagnosis: string | null
           secondary_diagnosis: string | null
@@ -534,6 +595,7 @@ export type Database = {
           mobility_needs?: string | null
           ndis_health_care_card?: string | null
           notes?: string | null
+          organisation_id: string
           participant_id: string
           primary_diagnosis?: string | null
           secondary_diagnosis?: string | null
@@ -555,6 +617,7 @@ export type Database = {
           mobility_needs?: string | null
           ndis_health_care_card?: string | null
           notes?: string | null
+          organisation_id?: string
           participant_id?: string
           primary_diagnosis?: string | null
           secondary_diagnosis?: string | null
@@ -563,6 +626,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "medical_info_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "medical_info_participant_id_fkey"
             columns: ["participant_id"]
@@ -592,6 +662,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           notes: string | null
+          organisation_id: string
           participant_id: string
           plan_end: string
           plan_manager_contact: string | null
@@ -612,6 +683,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           notes?: string | null
+          organisation_id: string
           participant_id: string
           plan_end: string
           plan_manager_contact?: string | null
@@ -632,6 +704,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           notes?: string | null
+          organisation_id?: string
           participant_id?: string
           plan_end?: string
           plan_manager_contact?: string | null
@@ -648,6 +721,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "ndis_plans_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ndis_plans_participant_id_fkey"
             columns: ["participant_id"]
@@ -671,6 +751,155 @@ export type Database = {
           },
         ]
       }
+      organisation_settings: {
+        Row: {
+          custom_settings: Json | null
+          email_notifications: boolean | null
+          enable_billing_module: boolean | null
+          enable_goals_tracking: boolean | null
+          enable_incident_reporting: boolean | null
+          enable_rostering_module: boolean | null
+          mandatory_incident_photos: boolean | null
+          organisation_id: string
+          require_two_staff_witnesses: boolean | null
+          sms_notifications: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          custom_settings?: Json | null
+          email_notifications?: boolean | null
+          enable_billing_module?: boolean | null
+          enable_goals_tracking?: boolean | null
+          enable_incident_reporting?: boolean | null
+          enable_rostering_module?: boolean | null
+          mandatory_incident_photos?: boolean | null
+          organisation_id: string
+          require_two_staff_witnesses?: boolean | null
+          sms_notifications?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          custom_settings?: Json | null
+          email_notifications?: boolean | null
+          enable_billing_module?: boolean | null
+          enable_goals_tracking?: boolean | null
+          enable_incident_reporting?: boolean | null
+          enable_rostering_module?: boolean | null
+          mandatory_incident_photos?: boolean | null
+          organisation_id?: string
+          require_two_staff_witnesses?: boolean | null
+          sms_notifications?: boolean | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organisation_settings_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: true
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organisations: {
+        Row: {
+          abn: string | null
+          acn: string | null
+          address_line1: string | null
+          address_line2: string | null
+          billing_email: string | null
+          country: string | null
+          created_at: string
+          date_format: string | null
+          email: string
+          id: string
+          is_active: boolean | null
+          max_employees: number | null
+          max_participants: number | null
+          max_storage_gb: number | null
+          ndis_registered: boolean | null
+          ndis_registration_expiry: string | null
+          ndis_registration_number: string | null
+          organisation_name: string
+          phone: string | null
+          postcode: string | null
+          state: string | null
+          status: string | null
+          subscription_end_date: string | null
+          subscription_start_date: string | null
+          subscription_tier: string | null
+          suburb: string | null
+          timezone: string | null
+          trading_name: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          abn?: string | null
+          acn?: string | null
+          address_line1?: string | null
+          address_line2?: string | null
+          billing_email?: string | null
+          country?: string | null
+          created_at?: string
+          date_format?: string | null
+          email: string
+          id?: string
+          is_active?: boolean | null
+          max_employees?: number | null
+          max_participants?: number | null
+          max_storage_gb?: number | null
+          ndis_registered?: boolean | null
+          ndis_registration_expiry?: string | null
+          ndis_registration_number?: string | null
+          organisation_name: string
+          phone?: string | null
+          postcode?: string | null
+          state?: string | null
+          status?: string | null
+          subscription_end_date?: string | null
+          subscription_start_date?: string | null
+          subscription_tier?: string | null
+          suburb?: string | null
+          timezone?: string | null
+          trading_name?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          abn?: string | null
+          acn?: string | null
+          address_line1?: string | null
+          address_line2?: string | null
+          billing_email?: string | null
+          country?: string | null
+          created_at?: string
+          date_format?: string | null
+          email?: string
+          id?: string
+          is_active?: boolean | null
+          max_employees?: number | null
+          max_participants?: number | null
+          max_storage_gb?: number | null
+          ndis_registered?: boolean | null
+          ndis_registration_expiry?: string | null
+          ndis_registration_number?: string | null
+          organisation_name?: string
+          phone?: string | null
+          postcode?: string | null
+          state?: string | null
+          status?: string | null
+          subscription_end_date?: string | null
+          subscription_start_date?: string | null
+          subscription_tier?: string | null
+          suburb?: string | null
+          timezone?: string | null
+          trading_name?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       participant_documents: {
         Row: {
           document_category: string | null
@@ -683,6 +912,7 @@ export type Database = {
           is_current: boolean | null
           mime_type: string | null
           notes: string | null
+          organisation_id: string
           participant_id: string
           uploaded_at: string
           uploaded_by: string | null
@@ -699,6 +929,7 @@ export type Database = {
           is_current?: boolean | null
           mime_type?: string | null
           notes?: string | null
+          organisation_id: string
           participant_id: string
           uploaded_at?: string
           uploaded_by?: string | null
@@ -715,12 +946,20 @@ export type Database = {
           is_current?: boolean | null
           mime_type?: string | null
           notes?: string | null
+          organisation_id?: string
           participant_id?: string
           uploaded_at?: string
           uploaded_by?: string | null
           uploaded_by_name?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "participant_documents_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "participant_documents_participant_id_fkey"
             columns: ["participant_id"]
@@ -751,6 +990,7 @@ export type Database = {
           goal_description: string | null
           goal_title: string
           id: string
+          organisation_id: string
           participant_id: string
           plan_id: string | null
           progress_notes: string | null
@@ -764,6 +1004,7 @@ export type Database = {
           goal_description?: string | null
           goal_title: string
           id?: string
+          organisation_id: string
           participant_id: string
           plan_id?: string | null
           progress_notes?: string | null
@@ -777,6 +1018,7 @@ export type Database = {
           goal_description?: string | null
           goal_title?: string
           id?: string
+          organisation_id?: string
           participant_id?: string
           plan_id?: string | null
           progress_notes?: string | null
@@ -785,6 +1027,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "participant_goals_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "participant_goals_participant_id_fkey"
             columns: ["participant_id"]
@@ -840,6 +1089,7 @@ export type Database = {
           middle_name: string | null
           ndis_number: string
           ndis_status: Database["public"]["Enums"]["ndis_status_type"] | null
+          organisation_id: string
           phone: string | null
           preferred_name: string | null
           pronouns: string | null
@@ -866,6 +1116,7 @@ export type Database = {
           middle_name?: string | null
           ndis_number: string
           ndis_status?: Database["public"]["Enums"]["ndis_status_type"] | null
+          organisation_id: string
           phone?: string | null
           preferred_name?: string | null
           pronouns?: string | null
@@ -892,6 +1143,7 @@ export type Database = {
           middle_name?: string | null
           ndis_number?: string
           ndis_status?: Database["public"]["Enums"]["ndis_status_type"] | null
+          organisation_id?: string
           phone?: string | null
           preferred_name?: string | null
           pronouns?: string | null
@@ -901,7 +1153,15 @@ export type Database = {
           updated_by?: string | null
           year_level?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "participants_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       risk_info: {
         Row: {
@@ -915,6 +1175,7 @@ export type Database = {
           last_updated: string
           medication_risks: string | null
           next_review_date: string | null
+          organisation_id: string
           participant_id: string
           risk_assessment_date: string | null
           safety_plan: string | null
@@ -933,6 +1194,7 @@ export type Database = {
           last_updated?: string
           medication_risks?: string | null
           next_review_date?: string | null
+          organisation_id: string
           participant_id: string
           risk_assessment_date?: string | null
           safety_plan?: string | null
@@ -951,6 +1213,7 @@ export type Database = {
           last_updated?: string
           medication_risks?: string | null
           next_review_date?: string | null
+          organisation_id?: string
           participant_id?: string
           risk_assessment_date?: string | null
           safety_plan?: string | null
@@ -959,6 +1222,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "risk_info_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "risk_info_participant_id_fkey"
             columns: ["participant_id"]
@@ -982,19 +1252,197 @@ export type Database = {
           },
         ]
       }
+      schedule_exceptions: {
+        Row: {
+          created_at: string
+          created_by: number | null
+          exception_date: string
+          exception_type: string
+          id: string
+          is_permanent: boolean | null
+          organisation_id: string
+          override_end_time: string | null
+          override_location: string | null
+          override_staff_id: number | null
+          override_start_time: string | null
+          reason: string | null
+          schedule_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: number | null
+          exception_date: string
+          exception_type: string
+          id?: string
+          is_permanent?: boolean | null
+          organisation_id: string
+          override_end_time?: string | null
+          override_location?: string | null
+          override_staff_id?: number | null
+          override_start_time?: string | null
+          reason?: string | null
+          schedule_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: number | null
+          exception_date?: string
+          exception_type?: string
+          id?: string
+          is_permanent?: boolean | null
+          organisation_id?: string
+          override_end_time?: string | null
+          override_location?: string | null
+          override_staff_id?: number | null
+          override_start_time?: string | null
+          reason?: string | null
+          schedule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_exceptions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_exceptions_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_exceptions_override_staff_id_fkey"
+            columns: ["override_staff_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_exceptions_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "active_schedules_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_exceptions_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "service_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_modifications: {
+        Row: {
+          change_description: string | null
+          created_at: string
+          created_by: number | null
+          created_by_name: string | null
+          effective_date: string
+          id: string
+          modification_type: string
+          new_end_date: string | null
+          new_status: Database["public"]["Enums"]["schedule_status_type"] | null
+          organisation_id: string
+          previous_end_date: string | null
+          previous_status:
+            | Database["public"]["Enums"]["schedule_status_type"]
+            | null
+          reason: string | null
+          schedule_id: string
+        }
+        Insert: {
+          change_description?: string | null
+          created_at?: string
+          created_by?: number | null
+          created_by_name?: string | null
+          effective_date?: string
+          id?: string
+          modification_type: string
+          new_end_date?: string | null
+          new_status?:
+            | Database["public"]["Enums"]["schedule_status_type"]
+            | null
+          organisation_id: string
+          previous_end_date?: string | null
+          previous_status?:
+            | Database["public"]["Enums"]["schedule_status_type"]
+            | null
+          reason?: string | null
+          schedule_id: string
+        }
+        Update: {
+          change_description?: string | null
+          created_at?: string
+          created_by?: number | null
+          created_by_name?: string | null
+          effective_date?: string
+          id?: string
+          modification_type?: string
+          new_end_date?: string | null
+          new_status?:
+            | Database["public"]["Enums"]["schedule_status_type"]
+            | null
+          organisation_id?: string
+          previous_end_date?: string | null
+          previous_status?:
+            | Database["public"]["Enums"]["schedule_status_type"]
+            | null
+          reason?: string | null
+          schedule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_modifications_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_modifications_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_modifications_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "active_schedules_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_modifications_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "service_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_bookings: {
         Row: {
           amount_charged: number | null
+          booking_notes: string | null
           budget_category_id: string | null
           cancellation_date: string | null
           cancellation_reason: string | null
           created_at: string
           end_time: string | null
+          generated_from_schedule: boolean | null
           hours_delivered: number | null
           id: string
           notes: string | null
+          organisation_id: string
           participant_id: string
           plan_id: string | null
+          schedule_id: string | null
           service_date: string
           service_location: string | null
           service_type: string
@@ -1006,16 +1454,20 @@ export type Database = {
         }
         Insert: {
           amount_charged?: number | null
+          booking_notes?: string | null
           budget_category_id?: string | null
           cancellation_date?: string | null
           cancellation_reason?: string | null
           created_at?: string
           end_time?: string | null
+          generated_from_schedule?: boolean | null
           hours_delivered?: number | null
           id?: string
           notes?: string | null
+          organisation_id: string
           participant_id: string
           plan_id?: string | null
+          schedule_id?: string | null
           service_date: string
           service_location?: string | null
           service_type: string
@@ -1027,16 +1479,20 @@ export type Database = {
         }
         Update: {
           amount_charged?: number | null
+          booking_notes?: string | null
           budget_category_id?: string | null
           cancellation_date?: string | null
           cancellation_reason?: string | null
           created_at?: string
           end_time?: string | null
+          generated_from_schedule?: boolean | null
           hours_delivered?: number | null
           id?: string
           notes?: string | null
+          organisation_id?: string
           participant_id?: string
           plan_id?: string | null
+          schedule_id?: string | null
           service_date?: string
           service_location?: string | null
           service_type?: string
@@ -1052,6 +1508,13 @@ export type Database = {
             columns: ["budget_category_id"]
             isOneToOne: false
             referencedRelation: "budget_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_bookings_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
             referencedColumns: ["id"]
           },
           {
@@ -1089,6 +1552,20 @@ export type Database = {
             referencedRelation: "participant_budget_summary"
             referencedColumns: ["plan_id"]
           },
+          {
+            foreignKeyName: "service_bookings_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "active_schedules_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_bookings_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "service_schedules"
+            referencedColumns: ["id"]
+          },
         ]
       }
       service_notes: {
@@ -1101,6 +1578,7 @@ export type Database = {
           is_sensitive: boolean | null
           note: string
           note_type: string | null
+          organisation_id: string
           participant_id: string
         }
         Insert: {
@@ -1112,6 +1590,7 @@ export type Database = {
           is_sensitive?: boolean | null
           note: string
           note_type?: string | null
+          organisation_id: string
           participant_id: string
         }
         Update: {
@@ -1123,6 +1602,7 @@ export type Database = {
           is_sensitive?: boolean | null
           note?: string
           note_type?: string | null
+          organisation_id?: string
           participant_id?: string
         }
         Relationships: [
@@ -1131,6 +1611,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "service_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_notes_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
             referencedColumns: ["id"]
           },
           {
@@ -1152,6 +1639,192 @@ export type Database = {
             columns: ["participant_id"]
             isOneToOne: false
             referencedRelation: "participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_schedules: {
+        Row: {
+          auto_generate_bookings: boolean | null
+          backup_staff_id: number | null
+          budget_category_id: string | null
+          created_at: string
+          created_by: number | null
+          custom_interval_days: number | null
+          duration_hours: number | null
+          end_time: string
+          flat_rate: number | null
+          fortnightly_week: number | null
+          generate_weeks_in_advance: number | null
+          hourly_rate: number | null
+          id: string
+          notes: string | null
+          organisation_id: string
+          participant_goals: string | null
+          participant_id: string
+          plan_id: string | null
+          preferred_staff_id: number | null
+          recurrence_day_of_month: number | null
+          recurrence_days: Database["public"]["Enums"]["day_of_week"][] | null
+          recurrence_type: Database["public"]["Enums"]["recurrence_type"]
+          schedule_end_date: string | null
+          schedule_name: string
+          schedule_start_date: string
+          service_address: string | null
+          service_location: string | null
+          service_type: string
+          special_requirements: string | null
+          start_time: string
+          status: Database["public"]["Enums"]["schedule_status_type"] | null
+          updated_at: string
+          updated_by: number | null
+        }
+        Insert: {
+          auto_generate_bookings?: boolean | null
+          backup_staff_id?: number | null
+          budget_category_id?: string | null
+          created_at?: string
+          created_by?: number | null
+          custom_interval_days?: number | null
+          duration_hours?: number | null
+          end_time: string
+          flat_rate?: number | null
+          fortnightly_week?: number | null
+          generate_weeks_in_advance?: number | null
+          hourly_rate?: number | null
+          id?: string
+          notes?: string | null
+          organisation_id: string
+          participant_goals?: string | null
+          participant_id: string
+          plan_id?: string | null
+          preferred_staff_id?: number | null
+          recurrence_day_of_month?: number | null
+          recurrence_days?: Database["public"]["Enums"]["day_of_week"][] | null
+          recurrence_type?: Database["public"]["Enums"]["recurrence_type"]
+          schedule_end_date?: string | null
+          schedule_name: string
+          schedule_start_date: string
+          service_address?: string | null
+          service_location?: string | null
+          service_type: string
+          special_requirements?: string | null
+          start_time: string
+          status?: Database["public"]["Enums"]["schedule_status_type"] | null
+          updated_at?: string
+          updated_by?: number | null
+        }
+        Update: {
+          auto_generate_bookings?: boolean | null
+          backup_staff_id?: number | null
+          budget_category_id?: string | null
+          created_at?: string
+          created_by?: number | null
+          custom_interval_days?: number | null
+          duration_hours?: number | null
+          end_time?: string
+          flat_rate?: number | null
+          fortnightly_week?: number | null
+          generate_weeks_in_advance?: number | null
+          hourly_rate?: number | null
+          id?: string
+          notes?: string | null
+          organisation_id?: string
+          participant_goals?: string | null
+          participant_id?: string
+          plan_id?: string | null
+          preferred_staff_id?: number | null
+          recurrence_day_of_month?: number | null
+          recurrence_days?: Database["public"]["Enums"]["day_of_week"][] | null
+          recurrence_type?: Database["public"]["Enums"]["recurrence_type"]
+          schedule_end_date?: string | null
+          schedule_name?: string
+          schedule_start_date?: string
+          service_address?: string | null
+          service_location?: string | null
+          service_type?: string
+          special_requirements?: string | null
+          start_time?: string
+          status?: Database["public"]["Enums"]["schedule_status_type"] | null
+          updated_at?: string
+          updated_by?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_schedules_backup_staff_id_fkey"
+            columns: ["backup_staff_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_schedules_budget_category_id_fkey"
+            columns: ["budget_category_id"]
+            isOneToOne: false
+            referencedRelation: "budget_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_schedules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_schedules_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_schedules_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "active_participants_with_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_schedules_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "participant_budget_summary"
+            referencedColumns: ["participant_id"]
+          },
+          {
+            foreignKeyName: "service_schedules_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_schedules_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "ndis_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_schedules_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "participant_budget_summary"
+            referencedColumns: ["plan_id"]
+          },
+          {
+            foreignKeyName: "service_schedules_preferred_staff_id_fkey"
+            columns: ["preferred_staff_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_schedules_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
@@ -1199,6 +1872,52 @@ export type Database = {
         }
         Relationships: []
       }
+      active_schedules_summary: {
+        Row: {
+          completed_bookings: number | null
+          id: string | null
+          organisation_id: string | null
+          participant_id: string | null
+          participant_name: string | null
+          recurrence_type: Database["public"]["Enums"]["recurrence_type"] | null
+          schedule_end_date: string | null
+          schedule_name: string | null
+          schedule_start_date: string | null
+          service_type: string | null
+          status: Database["public"]["Enums"]["schedule_status_type"] | null
+          upcoming_bookings: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_schedules_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_schedules_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "active_participants_with_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_schedules_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "participant_budget_summary"
+            referencedColumns: ["participant_id"]
+          },
+          {
+            foreignKeyName: "service_schedules_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       participant_budget_summary: {
         Row: {
           available_balance: number | null
@@ -1215,7 +1934,67 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      auto_generate_all_schedule_bookings: {
+        Args: never
+        Returns: {
+          bookings_created: number
+          schedule_id: string
+          schedule_name: string
+        }[]
+      }
+      extend_schedule: {
+        Args: {
+          p_new_end_date: string
+          p_reason: string
+          p_schedule_id: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
+      generate_bookings_from_schedule: {
+        Args: { p_generate_until_date?: string; p_schedule_id: string }
+        Returns: {
+          booking_date: string
+          booking_id: string
+          created: boolean
+        }[]
+      }
+      get_current_employee_id: { Args: never; Returns: string }
+      get_current_organisation_id: { Args: never; Returns: string }
+      has_role: { Args: { role_name_param: string }; Returns: boolean }
+      is_assigned_to_participant: {
+        Args: { participant_id_param: string }
+        Returns: boolean
+      }
+      is_same_organisation: { Args: { check_org_id: string }; Returns: boolean }
+      pause_schedule: {
+        Args: { p_reason: string; p_schedule_id: string; p_user_id: string }
+        Returns: undefined
+      }
+      reduce_schedule: {
+        Args: {
+          p_cancel_future_bookings?: boolean
+          p_new_end_date: string
+          p_reason: string
+          p_schedule_id: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
+      resume_schedule: {
+        Args: { p_schedule_id: string; p_user_id: string }
+        Returns: undefined
+      }
+      terminate_schedule: {
+        Args: {
+          p_cancel_future_bookings?: boolean
+          p_reason: string
+          p_schedule_id: string
+          p_termination_date: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       address_type: "Residential" | "Postal" | "Emergency"
@@ -1223,6 +2002,14 @@ export type Database = {
         | "Core Supports"
         | "Capacity Building"
         | "Capital Supports"
+      day_of_week:
+        | "monday"
+        | "tuesday"
+        | "wednesday"
+        | "thursday"
+        | "friday"
+        | "saturday"
+        | "sunday"
       gender_type:
         | "Male"
         | "Female"
@@ -1237,6 +2024,14 @@ export type Database = {
         | "Cancelled"
       participant_status_type: "Active" | "Inactive" | "On Hold" | "Discharged"
       plan_manager_type: "Self-Managed" | "Plan-Managed" | "NDIA-Managed"
+      recurrence_type:
+        | "once"
+        | "daily"
+        | "weekly"
+        | "fortnightly"
+        | "monthly"
+        | "custom"
+      schedule_status_type: "active" | "paused" | "ended" | "draft"
       service_status_type: "Scheduled" | "Completed" | "Cancelled" | "No-show"
     }
     CompositeTypes: {
@@ -1374,6 +2169,15 @@ export const Constants = {
         "Capacity Building",
         "Capital Supports",
       ],
+      day_of_week: [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+      ],
       gender_type: [
         "Male",
         "Female",
@@ -1390,6 +2194,15 @@ export const Constants = {
       ],
       participant_status_type: ["Active", "Inactive", "On Hold", "Discharged"],
       plan_manager_type: ["Self-Managed", "Plan-Managed", "NDIA-Managed"],
+      recurrence_type: [
+        "once",
+        "daily",
+        "weekly",
+        "fortnightly",
+        "monthly",
+        "custom",
+      ],
+      schedule_status_type: ["active", "paused", "ended", "draft"],
       service_status_type: ["Scheduled", "Completed", "Cancelled", "No-show"],
     },
   },
