@@ -45,8 +45,8 @@ export interface UserProfile {
 }
 
 export interface SidebarProps {
-  sections: NavSection[];
-  user: UserProfile;
+  sections?: NavSection[];
+  user?: UserProfile;
   currentPath?: string;
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
@@ -66,7 +66,15 @@ const defaultSections: NavSection[] = [
     title: "OPERATIONS",
     items: [
       { label: "Participants", href: "/participants", icon: Users },
-      { label: "Service Scheduling", href: "/scheduling", icon: Calendar },
+      {
+        label: "Scheduling",
+        href: "/schedules",
+        icon: Calendar,
+        children: [
+          { label: "Service Schedules", href: "/schedules" },
+          { label: "Shift Management", href: "/shift-management" },
+        ],
+      },
       { label: "Care Plans", href: "/care-plans", icon: FileText },
       { label: "Progress Notes", href: "/progress-notes", icon: ClipboardList },
       { label: "Documents", href: "/documents", icon: FolderOpen },
