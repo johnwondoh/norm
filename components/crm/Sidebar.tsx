@@ -22,7 +22,8 @@ import {
   ChevronRight,
   ChevronDown,
   LucideIcon,
-  TriangleAlert
+  TriangleAlert,
+  Clock
 } from "lucide-react";
 
 export interface NavItem {
@@ -102,6 +103,7 @@ const defaultSections: NavSection[] = [
           { label: "Roles & Permissions", href: "/employees/roles" },
         ],
       },
+      { label: "Timesheets", href: "/timesheets", icon: Clock },
       { label: "Invoicing & Billing", href: "/invoicing", icon: DollarSign },
       {
         label: "Reports & Analytics",
