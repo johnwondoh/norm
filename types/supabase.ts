@@ -1829,6 +1829,289 @@ export type Database = {
           },
         ]
       }
+      timesheet_attachments: {
+        Row: {
+          attachment_type: string | null
+          description: string | null
+          file_name: string
+          file_size: number | null
+          file_url: string
+          id: string
+          organisation_id: string
+          timesheet_id: string
+          uploaded_at: string
+          uploaded_by: number | null
+        }
+        Insert: {
+          attachment_type?: string | null
+          description?: string | null
+          file_name: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          organisation_id: string
+          timesheet_id: string
+          uploaded_at?: string
+          uploaded_by?: number | null
+        }
+        Update: {
+          attachment_type?: string | null
+          description?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          organisation_id?: string
+          timesheet_id?: string
+          uploaded_at?: string
+          uploaded_by?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timesheet_attachments_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timesheet_attachments_timesheet_id_fkey"
+            columns: ["timesheet_id"]
+            isOneToOne: false
+            referencedRelation: "timesheets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timesheet_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      timesheets: {
+        Row: {
+          actual_end_time: string
+          actual_hours: number | null
+          actual_start_time: string
+          approval_notes: string | null
+          approved_at: string | null
+          approved_by: number | null
+          billable_hours: number | null
+          break_minutes: number | null
+          created_at: string
+          created_by: number | null
+          employee_id: number
+          employee_signature_url: string | null
+          hourly_rate: number
+          id: string
+          incident_occurred: boolean | null
+          mileage_amount: number | null
+          mileage_rate_per_km: number | null
+          organisation_id: string
+          overtime_amount: number | null
+          overtime_hours: number | null
+          overtime_rate: number | null
+          paid_at: string | null
+          participant_id: string
+          payment_reference: string | null
+          regular_amount: number | null
+          rejected_at: string | null
+          rejected_by: number | null
+          rejection_reason: string | null
+          scheduled_date: string
+          scheduled_end_time: string
+          scheduled_hours: number
+          scheduled_start_time: string
+          service_booking_id: string
+          service_location: string | null
+          service_notes: string | null
+          service_type: string
+          status: Database["public"]["Enums"]["timesheet_status_type"] | null
+          submitted_at: string | null
+          submitted_by: number | null
+          supervisor_signature_url: string | null
+          tasks_completed: string | null
+          total_amount: number | null
+          travel_distance_km: number | null
+          updated_at: string
+          updated_by: number | null
+        }
+        Insert: {
+          actual_end_time: string
+          actual_hours?: number | null
+          actual_start_time: string
+          approval_notes?: string | null
+          approved_at?: string | null
+          approved_by?: number | null
+          billable_hours?: number | null
+          break_minutes?: number | null
+          created_at?: string
+          created_by?: number | null
+          employee_id: number
+          employee_signature_url?: string | null
+          hourly_rate: number
+          id?: string
+          incident_occurred?: boolean | null
+          mileage_amount?: number | null
+          mileage_rate_per_km?: number | null
+          organisation_id: string
+          overtime_amount?: number | null
+          overtime_hours?: number | null
+          overtime_rate?: number | null
+          paid_at?: string | null
+          participant_id: string
+          payment_reference?: string | null
+          regular_amount?: number | null
+          rejected_at?: string | null
+          rejected_by?: number | null
+          rejection_reason?: string | null
+          scheduled_date: string
+          scheduled_end_time: string
+          scheduled_hours: number
+          scheduled_start_time: string
+          service_booking_id: string
+          service_location?: string | null
+          service_notes?: string | null
+          service_type: string
+          status?: Database["public"]["Enums"]["timesheet_status_type"] | null
+          submitted_at?: string | null
+          submitted_by?: number | null
+          supervisor_signature_url?: string | null
+          tasks_completed?: string | null
+          total_amount?: number | null
+          travel_distance_km?: number | null
+          updated_at?: string
+          updated_by?: number | null
+        }
+        Update: {
+          actual_end_time?: string
+          actual_hours?: number | null
+          actual_start_time?: string
+          approval_notes?: string | null
+          approved_at?: string | null
+          approved_by?: number | null
+          billable_hours?: number | null
+          break_minutes?: number | null
+          created_at?: string
+          created_by?: number | null
+          employee_id?: number
+          employee_signature_url?: string | null
+          hourly_rate?: number
+          id?: string
+          incident_occurred?: boolean | null
+          mileage_amount?: number | null
+          mileage_rate_per_km?: number | null
+          organisation_id?: string
+          overtime_amount?: number | null
+          overtime_hours?: number | null
+          overtime_rate?: number | null
+          paid_at?: string | null
+          participant_id?: string
+          payment_reference?: string | null
+          regular_amount?: number | null
+          rejected_at?: string | null
+          rejected_by?: number | null
+          rejection_reason?: string | null
+          scheduled_date?: string
+          scheduled_end_time?: string
+          scheduled_hours?: number
+          scheduled_start_time?: string
+          service_booking_id?: string
+          service_location?: string | null
+          service_notes?: string | null
+          service_type?: string
+          status?: Database["public"]["Enums"]["timesheet_status_type"] | null
+          submitted_at?: string | null
+          submitted_by?: number | null
+          supervisor_signature_url?: string | null
+          tasks_completed?: string | null
+          total_amount?: number | null
+          travel_distance_km?: number | null
+          updated_at?: string
+          updated_by?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timesheets_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timesheets_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timesheets_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timesheets_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timesheets_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "active_participants_with_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timesheets_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "participant_budget_summary"
+            referencedColumns: ["participant_id"]
+          },
+          {
+            foreignKeyName: "timesheets_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timesheets_rejected_by_fkey"
+            columns: ["rejected_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timesheets_service_booking_id_fkey"
+            columns: ["service_booking_id"]
+            isOneToOne: true
+            referencedRelation: "service_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timesheets_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timesheets_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       todos: {
         Row: {
           id: number
@@ -1934,6 +2217,14 @@ export type Database = {
       }
     }
     Functions: {
+      approve_timesheet: {
+        Args: {
+          p_approver_id: number
+          p_notes?: string
+          p_timesheet_id: string
+        }
+        Returns: undefined
+      }
       auto_generate_all_schedule_bookings: {
         Args: never
         Returns: {
@@ -1941,6 +2232,16 @@ export type Database = {
           schedule_id: string
           schedule_name: string
         }[]
+      }
+      create_timesheet_from_booking: {
+        Args: {
+          p_actual_end: string
+          p_actual_start: string
+          p_booking_id: string
+          p_break_minutes?: number
+          p_created_by?: string
+        }
+        Returns: string
       }
       extend_schedule: {
         Args: {
@@ -1981,8 +2282,20 @@ export type Database = {
         }
         Returns: undefined
       }
+      reject_timesheet: {
+        Args: {
+          p_reason: string
+          p_rejector_id: string
+          p_timesheet_id: string
+        }
+        Returns: undefined
+      }
       resume_schedule: {
         Args: { p_schedule_id: string; p_user_id: string }
+        Returns: undefined
+      }
+      submit_timesheet: {
+        Args: { p_employee_id: number; p_timesheet_id: string }
         Returns: undefined
       }
       terminate_schedule: {
@@ -2033,6 +2346,12 @@ export type Database = {
         | "custom"
       schedule_status_type: "active" | "paused" | "ended" | "draft"
       service_status_type: "Scheduled" | "Completed" | "Cancelled" | "No-show"
+      timesheet_status_type:
+        | "draft"
+        | "submitted"
+        | "approved"
+        | "rejected"
+        | "paid"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2204,6 +2523,13 @@ export const Constants = {
       ],
       schedule_status_type: ["active", "paused", "ended", "draft"],
       service_status_type: ["Scheduled", "Completed", "Cancelled", "No-show"],
+      timesheet_status_type: [
+        "draft",
+        "submitted",
+        "approved",
+        "rejected",
+        "paid",
+      ],
     },
   },
 } as const
