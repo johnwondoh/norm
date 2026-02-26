@@ -1,11 +1,11 @@
-import { Suspense } from "react";
+import { Suspense, cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import TimesheetsClient from "./TimesheetsClient";
 import { Database } from "@/types/supabase";
 
 type Timesheet = Database["public"]["Tables"]["timesheets"]["Row"];
 
-export default async function TimesheetsPage() {
+const getTimesheets = cache(async () => {
   const supabase = await createClient();
 
   const { data: timesheets, error } = await supabase
@@ -13,10 +13,16 @@ export default async function TimesheetsPage() {
     .select(`
       *,
       participant:participants(id, first_name, last_name),
-      employee:employees(id, first_name, last_name),
+      employee:employees!timesheets_employee_id_fkey(id, first_name, last_name),
       service_booking:service_bookings(id, service_type, service_location)
     `)
     .order("scheduled_date", { ascending: false });
+
+  return { timesheets, error };
+});
+
+async function TimesheetsContent() {
+  const { timesheets, error } = await getTimesheets();
 
   if (error) {
     console.error("Error fetching timesheets:", error);
@@ -30,17 +36,19 @@ export default async function TimesheetsPage() {
     );
   }
 
+  return <TimesheetsClient initialTimesheets={timesheets || []} />;
+}
+
+export default async function TimesheetsPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Suspense
-        fallback={
-          <div className="flex items-center justify-center min-h-screen">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-          </div>
-        }
-      >
-        <TimesheetsClient initialTimesheets={timesheets || []} />
-      </Suspense>
-    </div>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen bg-slate-50">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        </div>
+      }
+    >
+      <TimesheetsContent />
+    </Suspense>
   );
 }

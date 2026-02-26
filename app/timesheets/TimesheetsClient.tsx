@@ -2,8 +2,9 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, Clock, CheckCircle2, TrendingUp, DollarSign } from "lucide-react";
 import { Database } from "@/types/supabase";
+import { Sidebar } from "@/components/crm";
 import SearchBar from "@/components/crm/SearchBar";
 import FilterDropdown from "@/components/crm/FilterDropdown";
 import SummaryMetricCard from "@/components/crm/SummaryMetricCard";
@@ -27,6 +28,7 @@ export default function TimesheetsClient({ initialTimesheets }: TimesheetsClient
   const [dateRangeFilter, setDateRangeFilter] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(15);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Filter timesheets based on search and filters
   const filteredTimesheets = useMemo(() => {
@@ -147,92 +149,111 @@ export default function TimesheetsClient({ initialTimesheets }: TimesheetsClient
   ];
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Timesheets</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            Manage employee timesheets and approvals
-          </p>
-        </div>
-        <Button
-          onClick={() => router.push("/timesheets/new")}
-          className="bg-blue-600 hover:bg-blue-700"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Timesheet
-        </Button>
-      </div>
+    <div className="flex min-h-screen bg-slate-50">
+      <Sidebar
+        currentPath="/timesheets"
+        collapsed={sidebarCollapsed}
+        onCollapsedChange={setSidebarCollapsed}
+        user={{
+          name: "Admin User",
+          email: "admin@ndis.com",
+        }}
+      />
 
-      {/* Summary Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <main className="flex-1 p-8 overflow-auto">
+        <div className="max-w-7xl mx-auto">
+          {/* Page Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">Timesheets</h1>
+                <p className="text-slate-500 mt-1">
+                  Manage employee timesheets and approvals
+                </p>
+              </div>
+              <Button
+                onClick={() => router.push("/timesheets/new")}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                New Timesheet
+              </Button>
+            </div>
+          </div>
+
+          {/* Summary Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <SummaryMetricCard
           title="Total Timesheets"
           value={metrics.total}
-          subtitle={`${metrics.draft} draft, ${metrics.submitted} pending`}
+          icon={Clock}
+          iconColor="text-blue-600"
+          iconBgColor="bg-blue-100"
         />
         <SummaryMetricCard
           title="Approved"
           value={metrics.approved}
-          subtitle={`${metrics.paid} paid`}
-          variant="success"
+          icon={CheckCircle2}
+          iconColor="text-green-600"
+          iconBgColor="bg-green-100"
         />
         <SummaryMetricCard
           title="Total Hours"
           value={metrics.totalHours}
-          subtitle="Billable hours"
-          variant="info"
+          icon={TrendingUp}
+          iconColor="text-purple-600"
+          iconBgColor="bg-purple-100"
         />
         <SummaryMetricCard
           title="Total Amount"
           value={`$${metrics.totalAmount}`}
-          subtitle={`${metrics.rejected} rejected`}
-          variant="warning"
+          icon={DollarSign}
+          iconColor="text-emerald-600"
+          iconBgColor="bg-emerald-100"
         />
       </div>
 
-      {/* Search and Filters */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
+          {/* Search and Filters */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <SearchBar
               value={searchQuery}
               onChange={setSearchQuery}
               placeholder="Search by employee, participant, service type, or location..."
+              className="flex-1"
             />
+            <div className="flex gap-3">
+              <FilterDropdown
+                label="Status"
+                options={statusOptions}
+                selectedValues={statusFilter}
+                onChange={setStatusFilter}
+              />
+              <FilterDropdown
+                label="Date Range"
+                options={dateRangeOptions}
+                selectedValues={dateRangeFilter}
+                onChange={setDateRangeFilter}
+              />
+            </div>
           </div>
-          <div className="flex gap-2">
-            <FilterDropdown
-              label="Status"
-              options={statusOptions}
-              selectedValues={statusFilter}
-              onChange={setStatusFilter}
-            />
-            <FilterDropdown
-              label="Date Range"
-              options={dateRangeOptions}
-              selectedValues={dateRangeFilter}
-              onChange={setDateRangeFilter}
+
+          {/* Timesheet Table */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <TimesheetTable
+              timesheets={currentTimesheets}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              itemsPerPage={itemsPerPage}
+              totalItems={filteredTimesheets.length}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={(value) => {
+                setItemsPerPage(value);
+                setCurrentPage(1);
+              }}
             />
           </div>
         </div>
-      </div>
-
-      {/* Timesheet Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <TimesheetTable
-          timesheets={currentTimesheets}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          itemsPerPage={itemsPerPage}
-          totalItems={filteredTimesheets.length}
-          onPageChange={setCurrentPage}
-          onItemsPerPageChange={(value) => {
-            setItemsPerPage(value);
-            setCurrentPage(1);
-          }}
-        />
-      </div>
+      </main>
     </div>
   );
 }
